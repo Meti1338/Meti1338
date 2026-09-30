@@ -8,6 +8,28 @@ Working title: *TBD*. Reference: Octopath Traveler (HD-2D look, Break/Boost comb
 2. **Tactical turn-based combat**: exploit weaknesses, break shields, spend boost points for big turns.
 3. **Characters with distinct field abilities and stories** (later milestones).
 
+## 1b. Story & Setting
+
+**Premise**: A mage sets out to discover where magic truly comes from. Magic is real and widely used, but nobody knows its source. Clues point to a hidden **Core**, and the trail leads across different worlds.
+
+**Protagonist**: the Mage (name TBD), a scholar-adventurer driven by curiosity rather than revenge or destiny. They are the fixed lead; the other two party members are companions met along the way (see 2.5).
+
+**Structure**: a hub-and-worlds journey.
+- Each **world** is a self-contained region with its own biome, culture, and a different *theory of magic* (e.g. magic as a living force, as a debt, as stored memory, as a machine, as a shared dream).
+- Each world yields a **fragment of truth** plus a new spell school or element for the Mage, which ties progression to the story and to combat weaknesses (section 2).
+- Travel between worlds uses a recurring device (a gate, a tome, a ley-line ship; TBD), which also serves as the hub.
+- Worlds can be played in a loose order, like Octopath chapters, then converge on the final world.
+
+**Arc**
+1. *Spark*: an anomaly in the Mage's home world shows that magic is weakening or behaving oddly; the local explanation doesn't hold up.
+2. *Journey*: in each world the Mage studies local magic, helps with a local crisis, and recovers a fragment. Companions join for their own reasons (e.g. one who distrusts magic, one who lives by it).
+3. *Revelation*: the fragments show that the worlds' magics are all linked to one **Core**.
+4. *The Core*: the Mage reaches it and must decide what to do with the truth. Ending options are TBD (e.g. protect it, free it, merge with it).
+
+**Themes**: curiosity vs. consequence, knowledge as a responsibility, magic as something shared rather than owned.
+
+**Open story questions**: What is the Core (a being, a place, a process)? Who are the two companions? Is there an antagonist, or is the tension the discovery itself? How many worlds (suggest 4 + final, to fit the 3-character scope)?
+
 ## 2. Combat Core (Milestone 1)
 
 ### 2.1 Rules
