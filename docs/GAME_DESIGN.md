@@ -19,7 +19,11 @@ Working title: *TBD*. Reference: Octopath Traveler (HD-2D look, Break/Boost comb
 - Each world yields a **fragment of truth** plus a new spell school or element for the Mage, which ties progression to the story and to combat weaknesses (section 2).
 - Travel between worlds uses a recurring device (a gate, a tome, a ley-line ship; TBD), which also serves as the hub.
 - **World count (decided): 3 main worlds + 1 final world.**
-  - The 3 main worlds are where the player learns about the characters. Each world centers on one party member's background and arc (my proposal: one world per character, including the Mage), while also giving a fragment of truth about magic.
+  - The 3 main worlds are where the player learns about the characters. Each world centers on one party member's background and arc, and also gives a fragment of truth about magic.
+  - **Fixed order (decided)**, like a linear chapter structure:
+    1. **World 1: the Mage's story.** Introduces the protagonist, the mystery of magic, and the core gameplay.
+    2. **World 2: the healer/tank's story.** The support/defensive companion (exact archetype, healer or tank, is TBD) joins.
+    3. **World 3: the warrior/rogue's story.** The physical damage companion (warrior or rogue, TBD) joins.
   - The 4th world is where the truth plays out: the Core, the revelation, and the ending. It is only reachable after the 3 main worlds.
   - The 3 main worlds can be played in a loose order, like Octopath chapters.
 
