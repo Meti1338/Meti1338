@@ -22,6 +22,12 @@ Working title: *TBD*. Reference: Octopath Traveler (HD-2D look, Break/Boost comb
   `damage = (Attack * Power * BoostMult * WeaknessMult * BreakMult) - Defense*k`, with small random variance (±5%). Multipliers live in a data table.
 - **Win/lose**: party wiped → defeat; all enemies dead → victory (XP, gold, drops).
 
+### 2.5 Party size (decision)
+- **3 playable characters, all active, no reserve bench and no swapping mid-battle.** Octopath's 8-character roster with 4 active slots is deliberately not used.
+- Why: fewer, deeper characters; less art and balancing cost; simpler UI and turn-order bar; each character's skills matter every fight.
+- Design consequences: each character needs a clear role and weapon/element coverage so the 3 together can hit most enemy weaknesses; BP is tracked per character; enemy encounters are tuned around 3 actors (typically 2-5 enemies).
+- `PartySize` is a single constant/data setting, so changing it later (e.g. to 2 or 4) needs no architecture changes.
+
 ### 2.2 Data model (data-driven; Data Assets / Data Tables)
 | Type | Fields |
 |---|---|
@@ -71,7 +77,7 @@ Use Git LFS for `.uasset`/`.umap` and textures. Add `.gitignore` for `Binaries/`
 1. **M1 Combat core** (logic + tests, then placeholder UI). ← first
 2. **M2 HD-2D presentation** (sprite material, camera, post process, battle scene).
 3. **M3 Exploration** (movement, encounters, NPCs, one town + one dungeon).
-4. **M4 Content & systems** (equipment, jobs/classes, shops, save/load, 4–8 characters).
+4. **M4 Content & systems** (equipment, jobs/classes, shops, save/load, 3 characters).
 5. **M5 Polish** (audio, cutscenes, localisation, optimisation, packaging).
 
 ## 7. Risks / Notes
@@ -81,7 +87,7 @@ Use Git LFS for `.uasset`/`.umap` and textures. Add `.gitignore` for `Binaries/`
 - Octopath Traveler is Square Enix IP: replicate mechanics/style generally, but use original names, art, music and story.
 
 ## 8. Open Questions
-- Party size (Octopath: 4 active of 8)? Number of playable characters?
+- Party size is decided: small, fixed party (see 2.5). Revisit only if playtests demand it.
 - Single-player only, or co-op/online?
 - Target platforms (PC first?) and min spec.
 - Art pipeline and source of pixel assets.
