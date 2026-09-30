@@ -283,7 +283,7 @@ function fxWindStreaks(ms) {
 }
 function fxRockSpikes(x, y, sc) {
   sc = sc || 1;
-  const P = new Pix(80, 60), earth = ramp('#2a1e16', '#4e3a28', '#7a5c3c', '#a8845a', '#d4b27c');
+  const P = new Pix(80, 60, DENS), earth = ramp('#2a1e16', '#4e3a28', '#7a5c3c', '#a8845a', '#d4b27c');
   const spikes = [[40, 26, 7], [30, 18, 5], [51, 20, 5.5], [22, 12, 4], [58, 13, 4]];
   for (const [cx, h, w] of spikes) P.poly([[cx - w, 58], [cx - w * .4, 58 - h * 1.8], [cx + w * .15, 58 - h * 2], [cx + w, 58]], earth, { grad: [cx - w, 58 - h * 2, cx + w, 58], hi: .98 });
   const cv = P.finish();

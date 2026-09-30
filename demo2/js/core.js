@@ -2,7 +2,8 @@
 /* Core: math, game clock (with hitstop/slow motion), tweens, colours and the pixel rasterizer. */
 
 const LW = 480, LH = 270;
-const DENS = 2;                                   // sprite pixel density (fine pixels per logical pixel)                       // low-res pixel buffer (the "world" resolution)
+const DENS = 2;
+const RES = 2;                                    // world buffer resolution multiplier (world units stay 480x270)                                   // sprite pixel density (fine pixels per logical pixel)                       // low-res pixel buffer (the "world" resolution)
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
 const lerp = (a, b, t) => a + (b - a) * t;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -76,8 +77,8 @@ class Pix {
   }
   clear() { this.buf.fill(0); }
   fset(x, y, c) { x |= 0; y |= 0; if (x >= 0 && y >= 0 && x < this.w && y < this.h) this.buf[y * this.w + x] = c; }
-  set(x, y, c) { const d = this.d, fx = Math.floor(x) * d, fy = Math.floor(y) * d; for (let j = 0; j < d; j++) for (let i = 0; i < d; i++) this.fset(fx + i, fy + j, c); }
-  dot(x, y, c) { this.fset(Math.floor(x * this.d), Math.floor(y * this.d), c); }   // one fine pixel
+  set(x, y, c) { [x, y] = this.T(x, y); const d = this.d, fx = Math.floor(x) * d, fy = Math.floor(y) * d; for (let j = 0; j < d; j++) for (let i = 0; i < d; i++) this.fset(fx + i, fy + j, c); }
+  dot(x, y, c) { [x, y] = this.T(x, y); this.fset(Math.floor(x * this.d), Math.floor(y * this.d), c); }   // one fine pixel
   get(x, y) { const d = this.d; x = Math.floor(x * d); y = Math.floor(y * d); return (x < 0 || y < 0 || x >= this.w || y >= this.h) ? 0 : this.buf[y * this.w + x]; }
   shade(rp, s, x, y, dither) {
     const n = rp.length, d = ((BAYER[(y & 3) * 4 + (x & 3)] + .5) / 16 - .5) * (dither === undefined ? (this.d > 1 ? .35 : .85) : dither);
@@ -154,18 +155,22 @@ class Pix {
       if (e2 <= dx) { e += dx; y0 += sy; }
     }
   }
-  ellipse(cx, cy, rx, ry, rp, o) { const d = this.d; this._ellipse(cx * d, cy * d, rx * d, ry * d, rp, o); }
-  capsule(x1, y1, x2, y2, r1, r2, rp, o) { const d = this.d; this._capsule(x1 * d, y1 * d, x2 * d, y2 * d, r1 * d, r2 * d, rp, o); }
+  /* optional local transform (used to scale a head about its centre): this.xf = { cx, cy, s } */
+  T(x, y) { const f = this.xf; return f ? [f.cx + (x - f.cx) * f.s, f.cy + (y - f.cy) * f.s] : [x, y]; }
+  S(r) { return this.xf ? r * this.xf.s : r; }
+  ellipse(cx, cy, rx, ry, rp, o) { const d = this.d; [cx, cy] = this.T(cx, cy); this._ellipse(cx * d, cy * d, this.S(rx) * d, this.S(ry) * d, rp, o); }
+  capsule(x1, y1, x2, y2, r1, r2, rp, o) { const d = this.d; [x1, y1] = this.T(x1, y1); [x2, y2] = this.T(x2, y2); this._capsule(x1 * d, y1 * d, x2 * d, y2 * d, this.S(r1) * d, this.S(r2) * d, rp, o); }
   poly(pts, rp, o) {
     const d = this.d; o = o || {};
-    const oo = o.grad ? Object.assign({}, o, { grad: o.grad.map(v => v * d) }) : o;
-    this._poly(pts.map(([x, y]) => [x * d, y * d]), rp, oo);
+    const oo = o.grad ? Object.assign({}, o, { grad: [...this.T(o.grad[0], o.grad[1]), ...this.T(o.grad[2], o.grad[3])].map(v => v * d) }) : o;
+    this._poly(pts.map(([x, y]) => this.T(x, y)).map(([x, y]) => [x * d, y * d]), rp, oo);
   }
   line(x0, y0, x1, y1, c, th) {                     // thin line in fine pixels (th = logical thickness, default 1)
-    const d = this.d, t = Math.max(1, Math.round((th || 1) * d));
+    const d = this.d, t = Math.max(1, Math.round(this.S(th || 1) * d));
+    [x0, y0] = this.T(x0, y0); [x1, y1] = this.T(x1, y1);
     for (let k = 0; k < t; k++) this._line(x0 * d, y0 * d + k, x1 * d, y1 * d + k, c);
   }
-  hair(x0, y0, x1, y1, c) { const d = this.d; this._line(x0 * d, y0 * d, x1 * d, y1 * d, c); }   // always 1 fine pixel
+  hair(x0, y0, x1, y1, c) { const d = this.d; [x0, y0] = this.T(x0, y0); [x1, y1] = this.T(x1, y1); this._line(x0 * d, y0 * d, x1 * d, y1 * d, c); }   // always 1 fine pixel
   /* Outline + rim light + flash/tint, written to the canvas. */
   finish(o) {
     o = o || {};

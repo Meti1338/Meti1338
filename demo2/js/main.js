@@ -3,7 +3,7 @@
 
 const stage = document.getElementById('stage');
 const cv = document.getElementById('view'), ctx = cv.getContext('2d');
-const low = document.createElement('canvas'); low.width = LW; low.height = LH;
+const low = document.createElement('canvas'); low.width = LW * RES; low.height = LH * RES;
 const lctx = low.getContext('2d'); lctx.imageSmoothingEnabled = false;
 const dof = document.createElement('canvas'); dof.width = LW; dof.height = LH; const dctx = dof.getContext('2d');
 const bloom = document.createElement('canvas'); bloom.width = LW / 2; bloom.height = LH / 2; const bctx = bloom.getContext('2d');
@@ -15,7 +15,7 @@ const HAS_FILTER = 'filter' in lctx;
 let MW = 960, MH = 540, U = 1;
 function resize() {
   const r = stage.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
-  const K = clamp(Math.round(r.width * dpr / LW), 2, 3);
+  const K = clamp(Math.round(r.width * dpr / LW), 2, 4);
   if (cv.width !== LW * K) { cv.width = LW * K; cv.height = LH * K; }
   MW = cv.width; MH = cv.height; U = MW / 960;
 }
@@ -32,7 +32,7 @@ function drawWorld() {
   const sh = Cam.shake;
   Cam.lx = Cam.px + (sh > .3 ? rnd(-sh, sh) : 0); Cam.ly = Cam.py + (sh > .3 ? rnd(-sh, sh) * .6 : 0);
   const off = { x: -Cam.lx, y: -Cam.ly };
-  lctx.clearRect(0, 0, LW, LH);
+  lctx.setTransform(1, 0, 0, 1, 0, 0); lctx.clearRect(0, 0, LW * RES, LH * RES); lctx.setTransform(RES, 0, 0, RES, 0, 0); lctx.imageSmoothingEnabled = false;
   drawLayers(lctx, { lx: Cam.lx, ly: Cam.ly }, false);
   for (const e of FX.ground) e.draw(lctx, (Clock.t - e.t0) / e.dur, off);
   // shadows
@@ -58,7 +58,7 @@ function drawWorld() {
     u.sprLeft = u.x + u.ox - A.footX; u.sprTop = u.y + u.oy - u.fly - A.footY;
     u.top = u.y + u.oy - u.fly - u.hgt;
     lctx.globalAlpha = u.vis;
-    lctx.drawImage(spr, Math.round(u.sprLeft + off.x), Math.round(u.sprTop + off.y), spr.width / A.px.d, spr.height / A.px.d);
+    lctx.drawImage(spr, Math.round((u.sprLeft + off.x) * RES) / RES, Math.round((u.sprTop + off.y) * RES) / RES, spr.width / A.px.d, spr.height / A.px.d);
     lctx.globalAlpha = 1;
   }
   for (const e of FX.low) e.draw(lctx, (Clock.t - e.t0) / e.dur, off);
@@ -74,13 +74,13 @@ function composite() {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
   ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(low, View.sx, View.sy, sw, sh, 0, 0, MW, MH);
+  ctx.drawImage(low, View.sx * RES, View.sy * RES, sw * RES, sh * RES, 0, 0, MW, MH);
   if (HAS_FILTER) {
-    dctx.clearRect(0, 0, LW, LH); dctx.filter = 'blur(1.6px)'; dctx.drawImage(low, 0, 0); dctx.filter = 'none';
+    dctx.clearRect(0, 0, LW, LH); dctx.filter = 'blur(1.6px)'; dctx.drawImage(low, 0, 0, LW, LH); dctx.filter = 'none';
     dctx.globalCompositeOperation = 'destination-in'; dctx.drawImage(mask, 0, 0, LW, LH); dctx.globalCompositeOperation = 'source-over';
     ctx.imageSmoothingEnabled = true; ctx.drawImage(dof, View.sx, View.sy, sw, sh, 0, 0, MW, MH);
     bctx.clearRect(0, 0, LW / 2, LH / 2); bctx.filter = 'contrast(2.6) brightness(.85) saturate(1.3) blur(3px)'; bctx.drawImage(low, 0, 0, LW / 2, LH / 2); bctx.filter = 'none';
-    ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = .3; ctx.drawImage(bloom, View.sx / 2, View.sy / 2, sw / 2, sh / 2, 0, 0, MW, MH); ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = .2; ctx.drawImage(bloom, View.sx / 2, View.sy / 2, sw / 2, sh / 2, 0, 0, MW, MH); ctx.globalAlpha = 1;
   }
   ctx.imageSmoothingEnabled = true;
   // god rays + sun
@@ -101,7 +101,7 @@ function composite() {
   for (const e of FX.high) { ctx.save(); e.draw(ctx, (Clock.t - e.t0) / e.dur, S); ctx.restore(); }
   if (FX.tint.a > .01) { ctx.globalCompositeOperation = 'soft-light'; ctx.fillStyle = 'rgba(' + FX.tint.c + ',' + FX.tint.a * 2 + ')'; ctx.fillRect(0, 0, MW, MH); }
   ctx.globalCompositeOperation = 'soft-light'; const warm = ctx.createLinearGradient(0, 0, 0, MH);
-  warm.addColorStop(0, 'rgba(255,200,130,.26)'); warm.addColorStop(1, 'rgba(60,40,120,.32)'); ctx.fillStyle = warm; ctx.fillRect(0, 0, MW, MH);
+  warm.addColorStop(0, 'rgba(255,230,180,.14)'); warm.addColorStop(1, 'rgba(40,60,90,.22)'); ctx.fillStyle = warm; ctx.fillRect(0, 0, MW, MH);
   ctx.globalCompositeOperation = 'source-over';
   const v = ctx.createRadialGradient(MW / 2, MH * .55, MH * .35, MW / 2, MH * .5, MW * .7);
   v.addColorStop(0, 'rgba(10,6,24,0)'); v.addColorStop(1, 'rgba(10,6,24,.62)'); ctx.fillStyle = v; ctx.fillRect(0, 0, MW, MH);

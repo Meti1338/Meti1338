@@ -38,14 +38,18 @@ const PAL = {
   sSkirt: ramp('#1a0c10', '#301820', '#4a2630', '#683a42'),
   sGreave: ramp('#1a1a1e', '#2e3036', '#464a52', '#646a72'),
   // enemies
-  wFur: ramp('#10241a', '#1e3e2a', '#335f3e', '#548c52'),
-  wMane: ramp('#0a1812', '#152c20', '#244632', '#3a6844'),
-  wBelly: ramp('#3a4a30', '#5e7048', '#86986a', '#b4c290'),
+  wFur: ramp('#1e4424', '#2e6232', '#468440', '#66a452', '#90c46c'),
+  wMane: ramp('#18381e', '#26542a', '#3a7438', '#56924a'),
+  wBelly: ramp('#5e7a44', '#86a060', '#aec482', '#d2e2a4'),
   bone: ramp('#5a4a2e', '#9a865e', '#d6c896', '#fff6d6'),
   bark: ramp('#22140c', '#3e281a', '#63432a', '#8e663e'),
   stone: ramp('#2a2a38', '#4c4e62', '#767a90', '#a8acbe'),
   moss: ramp('#18321a', '#2c5426', '#4a8434', '#7cb84a'),
-  mWing: ramp('#1a1038', '#34266e', '#5446aa', '#8676de'),
+  mWing: ramp('#34245e', '#4e3c8e', '#6e5cb4', '#9282d4', '#b8aaec'),
+  gStone: ramp('#3a3c42', '#565a60', '#76797c', '#96978f', '#b4b2a6'),
+  gGold: ramp('#5a3e14', '#8a6424', '#b88a38', '#dcb458', '#f4dc8a'),
+  gWood: ramp('#3a2414', '#5a3a20', '#7a5430', '#9a6e40', '#b88a56'),
+  gMoss: ramp('#2e5a1e', '#44802a', '#62a038', '#86c04c', '#aede6a'),
   mFur: ramp('#6a5030', '#a8885a', '#dac08a', '#fff0c8'),
   mEye: ramp('#0a5a6a', '#18a8b8', '#6af0f0', '#e6ffff')
 };
@@ -53,7 +57,7 @@ const FAR = {};
 function far(name) { return FAR[name] || (FAR[name] = dimRamp(PAL[name])); }
 
 /* ---------- humanoid rig ---------- */
-const HD = { rootX: 52, ground: 74, th: 4.6, sh: 4.4, torso: 7.2, neck: 7.4, ua: 4.2, la: 3.8, hr: 6.4 };  // chibi proportions: head about 40% of height
+const HD = { rootX: 52, ground: 74, th: 7.4, sh: 7.2, torso: 10.2, neck: 6.2, ua: 6, la: 5.4, hr: 6.4, hs: .74 };  // normal proportions; heads are drawn at 6.4 and scaled by hs
 const NEUTRAL = { bx: 0, by: 0, lean: 4, head: 0, aN0: 12, aN1: 25, aF0: -10, aF1: 20, lN0: 10, lN1: -8, lF0: -9, lF1: -3, wN: 0, wF: 0, cape: .2, blink: 0 };
 const P = o => Object.assign({}, NEUTRAL, o);
 function mixPose(a, b, t) { const o = {}; for (const k in a) o[k] = a[k] + ((b[k] === undefined ? a[k] : b[k]) - a[k]) * t; return o; }
@@ -77,15 +81,15 @@ function solveHuman(p, breath) {
   return { legs, hip, up, neck, head, sN, eN, hN, sF, eF, hF, wN: p.aN0 + p.aN1 + p.wN, wF: p.aF0 + p.aF1 + p.wF };
 }
 function hArm(px, s, e, h, sleeve, skin, forearmSkin, band) {
-  px.capsule(s.x, s.y, e.x, e.y, 2, 1.7, sleeve);
-  px.capsule(e.x, e.y, h.x, h.y, 1.7, 1.5, forearmSkin ? skin : sleeve);
+  px.capsule(s.x, s.y, e.x, e.y, 1.75, 1.45, sleeve);
+  px.capsule(e.x, e.y, h.x, h.y, 1.45, 1.25, forearmSkin ? skin : sleeve);
   if (band) px.capsule(e.x + (h.x - e.x) * .45, e.y + (h.y - e.y) * .45, e.x + (h.x - e.x) * .75, e.y + (h.y - e.y) * .75, 1.9, 1.9, band);
-  px.ellipse(h.x, h.y, 1.8, 1.8, skin);
+  px.ellipse(h.x, h.y, 1.5, 1.5, skin);
 }
 function hLeg(px, L, pants, boots, feet) {
-  px.capsule(L.h.x, L.h.y, L.kn.x, L.kn.y, 2.5, 2.1, pants);
-  px.capsule(L.kn.x, L.kn.y, L.ft.x, L.ft.y, 2.3, 2.1, boots);
-  px.capsule(L.ft.x + 1, L.ft.y - .6, L.ft.x - 2.4, L.ft.y + .1, 2, 1.6, feet || boots);
+  px.capsule(L.h.x, L.h.y, L.kn.x, L.kn.y, 2.2, 1.8, pants);
+  px.capsule(L.kn.x, L.kn.y, L.ft.x, L.ft.y, 1.9, 1.7, boots);
+  px.capsule(L.ft.x + .8, L.ft.y - .5, L.ft.x - 2.6, L.ft.y + .1, 1.7, 1.4, feet || boots);
 }
 function hFace(px, J, p, eyeCol, skin) {           // front 3/4 face drawn in fine pixels
   const h = J.head, q = 1 / px.d, dk = PAL.eye, wh = hex32('#ffffff');
@@ -145,7 +149,7 @@ const COSTUME = {
   Aruna: {
     back(px, J, p, t) {
       const h = J.head, n = J.neck, sw = Math.sin(t / 420) * .8 + p.cape * 3;
-      px.poly([[h.x + .5, h.y - 6], [h.x + 7, h.y - 2], [n.x + 7.5 + sw, n.y + 10], [n.x + 2 + sw * .5, n.y + 11.5], [n.x + .2, n.y + 2]], PAL.aHair, { grad: [h.x, h.y - 4, n.x + 4, n.y + 11] });
+      px.poly([[h.x + .5, h.y - 4.5], [h.x + 5.2, h.y - 1.5], [n.x + 6 + sw, n.y + 11], [n.x + 1.6 + sw * .5, n.y + 12.5], [n.x + .2, n.y + 2]], PAL.aHair, { grad: [h.x, h.y - 4, n.x + 4, n.y + 11] });
       px.poly([[n.x - 2.5, n.y + 1], [n.x + 4, n.y + .5], [n.x + 8.5 + sw * 1.6, HD.ground - 3 - sw], [n.x + 4 + sw, HD.ground - .5], [n.x - 1, HD.ground - 1.5]], PAL.aCloak, { grad: [n.x - 2, n.y, n.x + 8, HD.ground] });
       folds(px, [[n.x + 3, n.y + 3, n.x + 6.5 + sw * 1.4, HD.ground - 3], [n.x + 1, n.y + 4, n.x + 3 + sw, HD.ground - 1.5]], PAL.aCloak);
     },
@@ -188,8 +192,8 @@ const COSTUME = {
   Ayo: {
     back(px, J, p, t) {
       const h = J.head, fl = Math.sin(t / 260) * 1.2 + p.cape * 4;
-      px.capsule(h.x + 5, h.y - 4, h.x + 11 + fl, h.y - 1.5 + fl * .4, 1.1, .6, PAL.yyBand);
-      px.capsule(h.x + 5, h.y - 3.2, h.x + 9.5 + fl * .8, h.y + 2 + fl * .3, 1, .5, PAL.yyBand);
+      px.capsule(h.x + 3.6, h.y - 3, h.x + 9 + fl, h.y - 1 + fl * .4, .9, .5, PAL.yyBand);
+      px.capsule(h.x + 3.6, h.y - 2.4, h.x + 7.8 + fl * .8, h.y + 2 + fl * .3, .8, .4, PAL.yyBand);
     },
     farArm(px, J) { hArm(px, J.sF, J.eF, J.hF, far('yyTunic'), far('yySkin'), true, far('gold')); },
     weaponF(px, J) {
@@ -250,7 +254,7 @@ const COSTUME = {
       folds(px, [[n.x + 2.4, n.y + 3, C[0] - 2, C[1] + 2], [n.x + 1.2, n.y + 4, Dp[0] - 1, Dp[1] - 1.5]], PAL.sCape);
       px.line(B[0], B[1], C[0], C[1], PAL.gold[1]);
       px.line(C[0], C[1], Dp[0], Dp[1], PAL.gold[2]);
-      const b0 = { x: h.x + 4, y: h.y - 7 }, b1 = { x: h.x + 7.4 + sw * .4, y: h.y + 1.5 }, b2 = { x: h.x + 8.4 + fl * 2 + sw, y: h.y + 9 };
+      const b0 = { x: h.x + 2.9, y: h.y - 5.2 }, b1 = { x: h.x + 5.4 + sw * .4, y: h.y + 1.5 }, b2 = { x: h.x + 6.2 + fl * 2 + sw, y: h.y + 10 };
       px.capsule(b0.x, b0.y, b1.x, b1.y, 1.5, 1.3, PAL.sHair); px.capsule(b1.x, b1.y, b2.x, b2.y, 1.3, .8, PAL.sHair);
     },
     farArm(px, J) { hArm(px, J.sF, J.eF, J.hF, far('steel'), far('sSkin'), false, far('gold')); },
@@ -391,7 +395,6 @@ function drawWolf(px, p, t) {
   // body
   px.capsule(hip.x, hip.y, sh.x, sh.y, 10.5, 13, fur);
   px.ellipse(hip.x + 14, hip.y + 7.2, 11, 3.2, PAL.wBelly);
-  for (let i = 0; i < 4; i++) { const x = lerp(hip.x + 2, sh.x - 4, i / 3); px.capsule(x, hip.y - 7, x + 2, hip.y - 2, .8, .6, fur); }
   for (let i = 0; i <= 5; i++) {
     const bx = lerp(hip.x - 2, sh.x - 2, i / 5), by = lerp(hip.y, sh.y, i / 5) - 9.2, hgt = 5 + (i % 2) * 2.5;
     px.poly([[bx - 2.2, by + 1.5], [bx + 2.2, by + 1.5], [bx - 2.5, by - hgt]], PAL.bone, { grad: [bx - 2, by - hgt, bx + 2, by + 1] });
@@ -426,45 +429,71 @@ function drawWolf(px, p, t) {
   return { head: { x: Hc.x + 6, y: Hc.y + 2 }, chest: { x: sh.x, y: sh.y }, mouth: { x: Hc.x + 12, y: Hc.y + 4 } };
 }
 
+function spiral(px, cx, cy, r, turns, dir, rp) {   // gold filigree scroll
+  let prev = null; const q = 1 / px.d;
+  for (let t = 0; t <= 1.0001; t += .025) {
+    const a = dir * t * turns * Math.PI * 2, rr = r * (1 - t * .85), x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr;
+    if (prev) { px.hair(prev[0], prev[1] + q, x, y + q, rp[0]); px.hair(prev[0], prev[1], x, y, rp[3]); }
+    prev = [x, y];
+  }
+}
 function drawGolem(px, p, t) {
   const br = Math.sin(t / 700) * .8, c = p.crouch, tx = 64 + p.lean * 7, oy = c * 6 + br * .4;
-  const bark = PAL.bark, stone = PAL.stone, moss = PAL.moss;
-  const dr = (s, a, rp, rr) => {
-    const e = add(s, edir(a), 15), f = add(e, edir(a + 22), 13);
-    px.capsule(s.x, s.y, e.x, e.y, 6.8 * rr, 5.8 * rr, rp.bark); px.capsule(e.x, e.y, f.x, f.y, 5.6 * rr, 7.2 * rr, rp.bark);
-    px.ellipse(f.x, f.y, 8.6 * rr, 7.6 * rr, rp.stone); px.ellipse(f.x - 2, f.y - 2, 3, 2.4, rp.moss);
+  const st = PAL.gStone, gd = PAL.gGold, wd = PAL.gWood, ms = PAL.gMoss, fst = dimRamp(st, .8), fwd = dimRamp(wd, .8);
+  const arm = (S, a, far) => {
+    const e = add(S, edir(a), 14), f = add(e, edir(a + 22), 12), sR = far ? fst : st, wR = far ? fwd : wd;
+    px.capsule(S.x, S.y, e.x, e.y, 6, 5.2, sR); px.capsule(e.x, e.y, f.x, f.y, 5.4, 6.2, wR);
+    for (const k of [.3, .7]) { const b = { x: lerp(e.x, f.x, k), y: lerp(e.y, f.y, k) }; px.capsule(b.x - 5, b.y, b.x + 5, b.y, 1, 1, gd); }
+    px.ellipse(f.x, f.y + 1, 7.2, 6.4, sR);
     return f;
   };
-  const SF = { x: tx + 20, y: 48 + oy }, SN = { x: tx - 20, y: 50 + oy };
-  const fistF = dr(SF, p.armF, { bark: far('bark'), stone: far('stone'), moss: far('moss') }, .9);
+  const SF = { x: tx + 24, y: 50 + oy }, SN = { x: tx - 24, y: 52 + oy };
+  const fistF = arm(SF, p.armF, true);
+  px.ellipse(SF.x, SF.y - 1, 9, 8, fst); spiral(px, SF.x, SF.y - 1, 5.5, 1.6, 1, gd);
   // legs
-  for (const [hx, kx, fx, rp] of [[74, 77, 78, far('bark')], [54, 50, 49, bark]]) {
-    const hy = 86 + oy, ky = 103 + c * 3;
-    px.capsule(hx + p.lean * 3, hy, kx, ky, 9.4, 8.2, rp); px.capsule(kx, ky, fx, 116, 8.2, 7.6, rp);
-    px.ellipse(fx + 1, 118, 9.5, 4.2, rp === bark ? stone : far('stone'));
+  for (const [hx, fx, far] of [[74, 78, 1], [52, 48, 0]]) {
+    const hy = 86 + oy, R = far ? fwd : wd, SR = far ? fst : st;
+    px.capsule(hx + p.lean * 3, hy, fx, 112, 8.6, 7.6, R);
+    for (const yy of [94, 106]) px.capsule(fx - 7, yy + oy * .3, fx + 7, yy + oy * .3, 1, 1, gd);
+    px.ellipse(lerp(hx, fx, .5), 101 + oy * .5, 6, 5.4, SR); spiral(px, lerp(hx, fx, .5), 101 + oy * .5, 3.6, 1.4, far ? -1 : 1, gd);
+    px.ellipse(fx + 1, 116, 10, 5, SR);
   }
-  // torso stone
-  const top = 38 + oy;
-  px.poly([[tx - 22, 90 + oy], [tx - 25, 58 + oy], [tx - 15, top], [tx + 14, top - 2], [tx + 25, 54 + oy], [tx + 22, 90 + oy]], stone, { grad: [tx - 16, top, tx + 22, 94 + oy] });
-  px.line(tx - 12, top + 6, tx - 16, top + 20, stone[0]); px.line(tx + 14, top + 30, tx + 18, top + 42, stone[0]);
-  px.capsule(tx - 23, 72 + oy, tx + 21, 80 + oy, 2.6, 2.2, bark); px.capsule(tx - 20, 86 + oy, tx + 6, 76 + oy, 2.2, 1.8, bark);
-  const g = clamp(p.glow + Math.sin(t / 260) * .15, 0, 1);
-  const glow = ramp('#6a3a08', '#c07a14', '#ffc040', '#fff6c0'), gi = Math.round(g * 3);
-  px.ellipse(tx, 60 + oy, 6.5, 6.5, glow, { ring: .55, flat: gi });
-  px.line(tx, 48 + oy, tx, 72 + oy, glow[gi]); px.line(tx - 6, 54 + oy, tx + 6, 66 + oy, glow[Math.max(0, gi - 1)]); px.line(tx + 6, 54 + oy, tx - 6, 66 + oy, glow[Math.max(0, gi - 1)]);
-  px.set(tx, 60 + oy, glow[3]);
-  px.ellipse(tx, top + 2, 18, 5, moss);
-  for (let i = -3; i <= 3; i++) px.capsule(tx + i * 4.5, top + 3, tx + i * 4.5 + .5, top + 7 + (i * 7 % 4 + 4) % 4, 1, .6, moss);
-  // head + crown
-  const hy = top - 1;
-  px.poly([[tx - 8, hy], [tx - 6.5, hy - 12], [tx + 7, hy - 13], [tx + 10, hy - 1]], stone, { grad: [tx - 6, hy - 13, tx + 9, hy] });
-  px.set(tx - 1, hy - 7, glow[3]); px.set(tx, hy - 7, glow[2]); px.set(tx + 5, hy - 7, glow[3]); px.set(tx + 6, hy - 7, glow[2]);
-  for (const [a, b, lx2, ly2] of [[-4, -12, -14, -26], [2, -13, 6, -30], [7, -12, 18, -24]]) {
-    px.capsule(tx + a, hy + b, tx + lx2, hy + ly2, 1.6, .8, bark);
-    px.ellipse(tx + lx2, hy + ly2, 5, 3.6, moss); px.set(tx + lx2 + 1, hy + ly2 - 1, hex32('#ff9ac6')); px.set(tx + lx2 - 2, hy + ly2 + 1, hex32('#fff3c4'));
+  // barrel body of carved stone
+  const cy0 = 66 + oy;
+  px.ellipse(tx, cy0, 27, 25, st, { amb: .42 });
+  for (const ox of [-12, 12]) px.hair(tx + ox, cy0 - 20, tx + ox * 1.1, cy0 + 21, st[1]);
+  spiral(px, tx - 18, cy0 - 4, 6, 1.5, 1, gd); spiral(px, tx + 18, cy0 - 4, 6, 1.5, -1, gd);
+  spiral(px, tx - 16, cy0 + 12, 4.5, 1.3, -1, gd); spiral(px, tx + 16, cy0 + 12, 4.5, 1.3, 1, gd);
+  const g = clamp(p.glow + Math.sin(t / 260) * .15, 0, 1), glow = ramp('#8a5a10', '#d8a030', '#ffd060', '#fff6c0');
+  px.ellipse(tx, cy0 - 2, 8, 8, gd, { ring: .72 });
+  for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2; px.hair(tx + Math.cos(a) * 1.8, cy0 - 2 + Math.sin(a) * 1.8, tx + Math.cos(a) * 6.4, cy0 - 2 + Math.sin(a) * 6.4, gd[3]); }
+  px.ellipse(tx, cy0 - 2, 2, 2, glow, { flat: Math.round(g * 3) });
+  px.capsule(tx - 25, cy0 + 16, tx + 25, cy0 + 16, 2.4, 2.4, wd);
+  for (let i = -3; i <= 3; i++) px.ellipse(tx + i * 7, cy0 + 16, 1.2, 1.2, gd, { dither: 0 });
+  // mossy mantle
+  for (let i = -5; i <= 5; i++) {
+    const x = tx + i * 5, y = cy0 - 21 + Math.abs(i) * 1.4;
+    px.ellipse(x, y, 5.6, 4, ms, { amb: .45 });
+    px.capsule(x, y + 2, x + (i % 2) * .5, y + 5 + ((i * 7) % 4 + 4) % 4, 1, .6, ms);
   }
-  const fistN = dr(SN, p.armN, { bark, stone, moss }, 1);
-  return { head: { x: tx, y: hy - 6 }, chest: { x: tx, y: 60 + oy }, fist: fistN, fistF };
+  // head
+  const hy = cy0 - 32;
+  px.ellipse(tx + 1, hy, 10, 9, st, { amb: .45 });
+  px.ellipse(tx - 3, hy - 1, 2, 1.6, ramp('#1a1a1e', '#2a2a30', '#3a3a42', '#4a4a52'), { flat: 0 }); px.ellipse(tx + 5, hy - 1, 2, 1.6, ramp('#1a1a1e', '#2a2a30', '#3a3a42', '#4a4a52'), { flat: 0 });
+  px.dot(tx - 3, hy - 1, glow[3]); px.dot(tx + 5, hy - 1, glow[3]);
+  px.hair(tx - 2, hy + 4, tx + 4, hy + 4, st[0]);
+  for (const [a2, b2, lx2, ly2] of [[-5, -7, -14, -22], [1, -9, 2, -26], [6, -7, 16, -20]]) {
+    px.capsule(tx + a2, hy + b2, tx + lx2, hy + ly2, 1.6, .9, wd);
+    for (let k = 0; k < 4; k++) px.ellipse(tx + lx2 + (k - 1.5) * 2.4, hy + ly2 - 1 + (k % 2) * 1.6, 2.8, 2.2, ms, { amb: .5 });
+  }
+  const fistN = arm(SN, p.armN, false);
+  px.ellipse(SN.x, SN.y - 1, 9.5, 8.5, st, { amb: .45 }); spiral(px, SN.x, SN.y - 1, 6, 1.6, -1, gd);
+  // log club in the near fist
+  const cd = edir(p.armN + 22 - 90);
+  px.capsule(fistN.x - cd.x * 6, fistN.y - cd.y * 6, fistN.x + cd.x * 30, fistN.y + cd.y * 30, 3.4, 3, wd, { amb: .4 });
+  px.ellipse(fistN.x + cd.x * 31, fistN.y + cd.y * 31, 3, 3.2, ramp('#8a6a44', '#a88658', '#c6a472', '#e0c290'), { ring: 0 });
+  px.ellipse(fistN.x + cd.x * 14, fistN.y + cd.y * 14 - 2.5, 4, 2, ms);
+  return { head: { x: tx, y: hy }, chest: { x: tx, y: cy0 }, fist: fistN, fistF };
 }
 
 function drawMoth(px, p, t) {
@@ -473,9 +502,9 @@ function drawMoth(px, p, t) {
   const wing = (base, pts, rp, spot) => {
     const P2 = pts.map(([x, y]) => [base.x + x * s, base.y + y]);
     px.poly(P2, rp, { grad: [base.x, base.y, P2[2][0], P2[2][1]] });
-    for (let i = 1; i < P2.length - 1; i++) px.line(base.x, base.y, lerp(base.x, P2[i][0], .85), lerp(base.y, P2[i][1], .85), rp[0]);
-    if (spot) { px.ellipse(spot[0], spot[1], 3.2, 3.2, PAL.gold, { ring: .45, flat: 2 }); px.ellipse(spot[0], spot[1], 1.8, 1.8, ramp('#0a0610', '#1a1030', '#2a1a4a', '#3a2a6a'), { flat: 1 }); px.set(spot[0] - .6, spot[1] - .6, hex32('#ffffff')); }
-    for (let i = 1; i < P2.length - 1; i++) px.set(P2[i][0], P2[i][1], hex32('#6af0e0'));
+    for (let i = 1; i < P2.length - 1; i++) px.hair(base.x, base.y, lerp(base.x, P2[i][0], .85), lerp(base.y, P2[i][1], .85), PAL.gGold[1]);
+    for (let i = 0; i < P2.length; i++) { const A = P2[i], Bq = P2[(i + 1) % P2.length]; px.hair(A[0], A[1], Bq[0], Bq[1], PAL.gGold[3]); }
+    if (spot) { spiral(px, spot[0], spot[1], 5, 1.7, 1, PAL.gGold); spiral(px, spot[0] + 7, spot[1] + 6, 3.4, 1.4, -1, PAL.gGold); }
   };
   const fb = { x: B.x + 2, y: B.y - 4 };
   wing(fb, [[0, 0], [12, -30 * w], [0, -42 * w], [-16, -32 * w], [-8, 2]], far('mWing'));
@@ -539,7 +568,8 @@ class Actor {
       const J = solveHuman(p, breath), C = COSTUME[this.kind];
       C.back && C.back(px, J, p, t);
       C.farArm(px, J, p, t); C.weaponF && C.weaponF(px, J, p, t);
-      C.legs(px, J, p, t); C.body(px, J, p, t); C.head(px, J, p, t);
+      C.legs(px, J, p, t); C.body(px, J, p, t);
+      px.xf = { cx: J.head.x, cy: J.head.y, s: HD.hs }; C.head(px, J, p, t); px.xf = null;
       C.nearArm(px, J, p, t); C.weaponN && C.weaponN(px, J, p, t);
       this.J = J;
     }
