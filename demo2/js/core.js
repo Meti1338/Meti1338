@@ -78,7 +78,7 @@ class Pix {
     const n = rp.length, d = ((BAYER[(y & 3) * 4 + (x & 3)] + .5) / 16 - .5) * (dither === undefined ? .85 : dither);
     return rp[clamp(Math.floor(s * n + d), 0, n - 1)];
   }
-  lambert(nx, ny, nz, amb) { const l = nx * LIGHT[0] + ny * LIGHT[1] + nz * LIGHT[2]; return clamp((amb === undefined ? .22 : amb) + (1 - (amb === undefined ? .22 : amb)) * Math.max(0, l), 0, .999); }
+  lambert(nx, ny, nz, amb) { const A = amb === undefined ? .3 : amb, l = nx * LIGHT[0] + ny * LIGHT[1] + nz * LIGHT[2]; return clamp(A + (1 - A) * Math.max(0, l), 0, .999); }
   ellipse(cx, cy, rx, ry, rp, o) {
     o = o || {};
     const x0 = Math.floor(cx - rx), x1 = Math.ceil(cx + rx), y0 = Math.floor(cy - ry), y1 = Math.ceil(cy + ry);

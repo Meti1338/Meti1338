@@ -1,0 +1,4 @@
+<!doctype html><meta charset="utf-8"><title>Face check</title><style>body{background:#6a7a5a;margin:0}canvas{image-rendering:pixelated}</style>
+<canvas id="c"></canvas><script src="js/core.js"></script><script src="js/actors.js"></script>
+<script>const c=document.getElementById('c'),g=c.getContext('2d'),S=12;c.width=3*40*S;c.height=44*S;g.imageSmoothingEnabled=false;
+['Aruna','Ayo','Serafina'].forEach((n,i)=>{const a=new Actor(n,false);a.pose=Object.assign({},a.poses.idle);a.idleMode=false;const cv=a.render();g.drawImage(cv,32,34,40,44,i*40*S,0,40*S,44*S);});</script>

@@ -11,30 +11,32 @@ const add = (p, d, k) => ({ x: p.x + d.x * k, y: p.y + d.y * k });
 /* ---------- palettes ---------- */
 const PAL = {
   eye: hex32('#140c1c'),
-  gold: ramp('#5a3a10', '#a8741e', '#e2b244', '#fff0a0'),
+  gold: ramp('#4a3414', '#7a5a26', '#a88440', '#d4b270'),
+  fur: ramp('#3e3426', '#6a5c44', '#968462', '#c2b08a', '#e4d6b2'),
   wood: ramp('#24140c', '#462a16', '#724824', '#a07440'),
-  steel: ramp('#262a3c', '#555e78', '#98a4c0', '#f0f4ff'),
+  steel: ramp('#24262c', '#484c56', '#737884', '#a8acb4'),
   // Aruna
-  aSkin: ramp('#4a2420', '#7a4030', '#a8664a', '#d09470'),
-  aHair: ramp('#120a1c', '#221834', '#382a54', '#56467c'),
-  aRobe: ramp('#141240', '#232476', '#373ea8', '#5a68d6'),
-  aShawl: ramp('#6a2a0c', '#b45418', '#e68a2a', '#ffc45a'),
+  aSkin: ramp('#4a2a22', '#7a4a36', '#a26e52', '#c8926c'),
+  aHair: ramp('#1a1210', '#2e221c', '#4a382c', '#6a5440'),
+  aRobe: ramp('#1a1c2e', '#2c3050', '#434a72', '#646c96'),
+  aCloak: ramp('#141820', '#222a34', '#34404c', '#4a5864'),
+  aShawl: ramp('#5a3414', '#8a5a26', '#b8843e', '#d8aa64'),
   aOrb: ramp('#6a1a5a', '#c2409a', '#ff80d0', '#fff0fa'),
-  aBoot: ramp('#1a1016', '#34202a', '#523444', '#74506a'),
+  aBoot: ramp('#1e1612', '#342820', '#4e3c2e', '#6a5440'),
   // Ayo
-  yySkin: ramp('#1e100c', '#3a2016', '#5c3622', '#855535'),
-  yyHair: ramp('#0e0a10', '#221a26', '#3a2e40', '#5e4c66'),
-  yyTunic: ramp('#0a2c2e', '#155856', '#238880', '#46baa6'),
-  yyBand: ramp('#5a2208', '#a8441a', '#e27a34', '#ffb070'),
-  yySash: ramp('#4a1016', '#8c2028', '#c83a3a', '#f06858'),
-  yyPants: ramp('#22150e', '#3c2818', '#5c4026', '#86603a'),
-  yyWrap: ramp('#5e503c', '#948262', '#c6b288', '#eee0bc'),
+  yySkin: ramp('#22140e', '#3e2618', '#5e3c26', '#80583a'),
+  yyHair: ramp('#0e0a08', '#221812', '#3a2a20', '#5a4232'),
+  yyTunic: ramp('#12281e', '#1e4030', '#2e5c44', '#46785a'),
+  yyBand: ramp('#4a2410', '#7a3e1c', '#a8602e', '#cc8a4e'),
+  yySash: ramp('#3a1412', '#62221e', '#8a3a30', '#b05a48'),
+  yyPants: ramp('#20160e', '#382818', '#523c26', '#6e5638'),
+  yyWrap: ramp('#4a4234', '#6e644e', '#948868', '#bcb08a'),
   // Serafina
   sSkin: ramp('#8a5048', '#c0806c', '#e2ae94', '#fad8c2'),
-  sHair: ramp('#56527a', '#9894bc', '#d0cee8', '#ffffff'),
-  sCape: ramp('#2c0810', '#5a1220', '#981e2c', '#d2404a'),
-  sSkirt: ramp('#1c0810', '#3c1020', '#681c2e', '#983040'),
-  sGreave: ramp('#181a28', '#32384e', '#58627e', '#8894b2'),
+  sHair: ramp('#5a5664', '#8c8898', '#b8b4c0', '#dedae2'),
+  sCape: ramp('#240c10', '#421a1e', '#62282c', '#84403e'),
+  sSkirt: ramp('#1a0c10', '#301820', '#4a2630', '#683a42'),
+  sGreave: ramp('#1a1a1e', '#2e3036', '#464a52', '#646a72'),
   // enemies
   wFur: ramp('#10241a', '#1e3e2a', '#335f3e', '#548c52'),
   wMane: ramp('#0a1812', '#152c20', '#244632', '#3a6844'),
@@ -86,23 +88,30 @@ function hLeg(px, L, pants, boots, feet) {
   px.capsule(L.ft.x + 1, L.ft.y - .6, L.ft.x - 2.4, L.ft.y + .1, 2, 1.6, feet || boots);
 }
 function hFace(px, J, p, eyeCol, skin) {           // front 3/4 face: two large eyes with highlights
-  const h = J.head, ex = [h.x - 1.2, h.x - 4.6], ey = h.y + .8, iris = typeof eyeCol === 'number' ? eyeCol : eyeCol[2];
+  const h = J.head, ex = [h.x - .6, h.x - 3.8], ey = h.y + .8, iris = typeof eyeCol === 'number' ? eyeCol : eyeCol[2];
   const dark = PAL.eye, hi = hex32('#ffffff');
   for (let i = 0; i < 2; i++) {
-    const x = ex[i], w = i ? 1 : 2;
-    if (p.blink > .5) { for (let k = -1; k < w; k++) px.set(x + k, ey + 1.5, dark); continue; }
-    for (let k = -1; k <= w - 1; k++) px.set(x + k, ey, dark);          // lash line
-    if (w === 2) { px.set(x - 1, ey + 1, hi); px.set(x, ey + 1, iris); px.set(x + 1, ey + 1, iris); px.set(x, ey + 2, iris); px.set(x + 1, ey + 2, dark); px.set(x, ey + 1, hi); }
-    else { px.set(x, ey + 1, iris); px.set(x, ey + 2, iris); }
+    const x = Math.round(ex[i]) - 1, y = Math.round(ey);
+    if (p.blink > .5) { px.set(x, y + 2, dark); px.set(x + 1, y + 2, dark); continue; }
+    px.set(x, y, dark); px.set(x + 1, y, dark);
+    px.set(x, y + 1, i ? iris : hi); px.set(x + 1, y + 1, iris);
+    px.set(x, y + 2, iris); px.set(x + 1, y + 2, dark);
   }
-    px.set(h.x - 3, h.y + 4.6, skin[0]); px.set(h.x - 2.2, h.y + 4.6, skin[1]);   // mouth
+  px.set(h.x - 3, h.y + 4.6, skin[0]); px.set(h.x - 2.2, h.y + 4.6, skin[1]);   // mouth
   px.set(h.x - 5.2, h.y + 3.2, skin[3]);                                          // cheek light
 }
-function hHead(px, J, skin) { px.ellipse(J.head.x, J.head.y + .6, HD.hr, HD.hr - .4, skin, { amb: .35 }); }
+function furCollar(px, n, w) {                         // chunky fur collar with tufted lower edge
+  w = w || 5.4;
+  px.ellipse(n.x + .6, n.y + 1.4, w, 2.8, PAL.fur, { amb: .4 });
+  for (let x = Math.ceil(n.x - w + 1); x < n.x + w; x++) if ((x & 1) === 0) px.set(x, n.y + 4, PAL.fur[2]);
+  for (let x = Math.ceil(n.x - w + 1.5); x < n.x + w - .5; x += 3) px.set(x, n.y + .2, PAL.fur[4]);
+}
+function hHead(px, J, skin) { px.ellipse(J.head.x, J.head.y + .6, HD.hr, HD.hr - .4, skin, { amb: .5, dither: .15, bias: .08 }); }
 function spikes(px, list, rp) {                      // hair strands: [baseX, baseY, tipX, tipY, width]
   for (const [bx, by, tx, ty, w] of list) {
     const dx = tx - bx, dy = ty - by, l = Math.hypot(dx, dy) || 1, nx = -dy / l * w, ny = dx / l * w;
     px.poly([[bx + nx, by + ny], [tx, ty], [bx - nx, by - ny]], rp, { grad: [bx - 2, by - 2, tx + 1, ty + 2], hi: .98 });
+    px.line(bx + nx * .4, by + ny * .4, lerp(bx, tx, .55), lerp(by, ty, .55), rp[rp.length - 1]);
   }
 }
 function curvedBlade(px, h, ang, len, curve, r0, rp, edge) {
@@ -123,7 +132,7 @@ const COSTUME = {
     back(px, J, p, t) {
       const h = J.head, n = J.neck, sw = Math.sin(t / 420) * .8 + p.cape * 3;
       px.poly([[h.x + .5, h.y - 6], [h.x + 7, h.y - 2], [n.x + 7.5 + sw, n.y + 10], [n.x + 2 + sw * .5, n.y + 11.5], [n.x + .2, n.y + 2]], PAL.aHair, { grad: [h.x, h.y - 4, n.x + 4, n.y + 11] });
-      px.poly([[n.x + 1.5, n.y + 2], [n.x + 7.5 + sw * 1.3, n.y + 10], [n.x + 5.2 + sw, n.y + 13.5], [n.x + .8, n.y + 6]], PAL.aShawl, { grad: [n.x, n.y, n.x + 7, n.y + 13] });
+      px.poly([[n.x - 2.5, n.y + 1], [n.x + 4, n.y + .5], [n.x + 8.5 + sw * 1.6, HD.ground - 3 - sw], [n.x + 4 + sw, HD.ground - .5], [n.x - 1, HD.ground - 1.5]], PAL.aCloak, { grad: [n.x - 2, n.y, n.x + 8, HD.ground] });
     },
     farArm(px, J) { hArm(px, J.sF, J.eF, J.hF, far('aRobe'), far('aSkin'), false, far('gold')); },
     legs(px, J) { hLeg(px, J.legs.F, far('aRobe'), far('aBoot')); hLeg(px, J.legs.N, PAL.aRobe, PAL.aBoot); },
@@ -136,11 +145,11 @@ const COSTUME = {
       px.line(hp.x - 1.5, hp.y + 1, (hl + hr) / 2 - 1.5, hemY - 1, PAL.gold[1]);
       px.poly([[n.x - 2.8, n.y + .8], [n.x + 2.8, n.y + .2], [hp.x + 3.6, hp.y - 1], [hp.x + .6, hp.y + .2]], PAL.aShawl, { grad: [n.x - 3, n.y, hp.x + 4, hp.y] });
       px.capsule(hp.x - 3.4, hp.y - 1.6, hp.x + 3.4, hp.y - 1.6, .9, .9, PAL.gold);
-      for (let i = -2; i <= 1; i++) px.set(n.x + i, n.y + 1.6 + Math.abs(i + .5) * .4, PAL.gold[i & 1 ? 3 : 2]);
+      furCollar(px, n, 5.6);
     },
     head(px, J, p) {
       const h = J.head, R = PAL.aHair;
-      hHead(px, J, PAL.aSkin); hFace(px, J, p, hex32('#7a4ac8'), PAL.aSkin);
+      hHead(px, J, PAL.aSkin);
       px.ellipse(h.x + 1.8, h.y - 3.6, 6.8, 4.2, R);
       spikes(px, [[h.x - 5, h.y - 3.5, h.x - 7.2, h.y + 2.6, 1.6], [h.x - 3.4, h.y - 4.2, h.x - 4.6, h.y - .4, 1.6], [h.x - 1, h.y - 4.4, h.x - 2.2, h.y - .8, 1.5],
         [h.x + 1.4, h.y - 4.4, h.x + .8, h.y - .6, 1.4], [h.x + 3.5, h.y - 7.2, h.x + 7, h.y - 9.2, 1.6], [h.x - 1, h.y - 7.2, h.x - 2.4, h.y - 10, 1.5], [h.x + 5.5, h.y - 3, h.x + 8.2, h.y + 3.5, 1.8]], R);
@@ -148,6 +157,7 @@ const COSTUME = {
       px.line(h.x - 6.4, h.y - 4.2, h.x + 5, h.y - 6.6, PAL.gold[2]);
       px.set(h.x - 2.2, h.y - 5, hex32('#ff4a6a')); px.set(h.x - 1.2, h.y - 4.4, PAL.gold[3]);
       px.set(h.x + 3.2, h.y + 3.6, PAL.gold[3]); px.set(h.x + 3.2, h.y + 4.6, PAL.gold[2]);
+      hFace(px, J, p, hex32('#7a4ac8'), PAL.aSkin);
     },
     nearArm(px, J) { hArm(px, J.sN, J.eN, J.hN, PAL.aRobe, PAL.aSkin, false, PAL.gold); },
     weaponN(px, J, p, t) {
@@ -179,7 +189,7 @@ const COSTUME = {
       px.capsule(hp.x, hp.y, n.x, n.y + 1, 3.6, 4.2, PAL.yyTunic);
       const L0 = [n.x - 4.6, n.y + 1.2], R0 = [n.x + 4.9, n.y + .8], R1 = [hp.x + 5.9, hp.y + 1.6], L1 = [hp.x - 5.6, hp.y + 1.6];
       px.poly([L0, R0, R1, L1], PAL.yyTunic, { grad: [L0[0], L0[1], R1[0], R1[1]] });
-      const pat = [hex32('#f0c050'), hex32('#c83a3a'), hex32('#1a1014'), hex32('#c83a3a'), hex32('#f0c050'), hex32('#f0e8d8')];
+      const pat = [hex32('#c8a050'), hex32('#9a3a30'), hex32('#1a1014'), hex32('#9a3a30'), hex32('#c8a050'), hex32('#d8ccb0')];
       const rows = [Math.round(n.y + 4.5), Math.round(hp.y - .6)];
       rows.forEach((y, ri) => {
         for (let x = Math.floor(hp.x - 7); x <= hp.x + 7; x++) {
@@ -194,16 +204,18 @@ const COSTUME = {
       const fl = Math.sin(t / 300) * .8 + p.cape * 3;
       px.capsule(hp.x + 4.6, hp.y + .5, hp.x + 7.6 + fl, hp.y + 5.2, 1, .7, PAL.yySash);
       const beads = [hex32('#e03a3a'), hex32('#3a8aff'), hex32('#f0c050')];
-      for (let i = -3; i <= 1; i++) px.set(n.x + i, n.y + 1.5 + (i === -3 || i === 1 ? -.5 : .4), beads[(i + 3) % 3]);
+      px.ellipse(n.x + .4, n.y + 1.4, 4.8, 2.2, PAL.yyWrap, { amb: .4 });
+      for (let i = -3; i <= 3; i++) px.set(n.x + i, n.y + 3, beads[(i + 3) % 3]);
     },
     head(px, J, p) {
       const h = J.head, R = PAL.yyHair;
       for (const [ox, oy, r] of [[5, -2.5, 2.8], [5.4, .8, 2.4], [3.4, -5.6, 2.8]]) px.ellipse(h.x + ox, h.y + oy, r, r, R);
-      hHead(px, J, PAL.yySkin); hFace(px, J, p, hex32('#6a3a1a'), PAL.yySkin);
+      hHead(px, J, PAL.yySkin);
       for (const [ox, oy, r] of [[-4.6, -4.4, 2.3], [-2.4, -6.2, 2.8], [.6, -7, 3], [3.4, -5.8, 2.8], [-.8, -4.8, 2.4], [2.4, -4, 2.4], [-6, -1.6, 1.6]]) px.ellipse(h.x + ox, h.y + oy, r, r, R);
       spikes(px, [[h.x - 1, h.y - 8, h.x - 2.6, h.y - 11, 1.4], [h.x + 2.5, h.y - 8.4, h.x + 4.6, h.y - 11.4, 1.4], [h.x + 5.6, h.y - 5, h.x + 9, h.y - 6.5, 1.4]], R);
       px.capsule(h.x - 6.4, h.y - 2.6, h.x + 5.8, h.y - 4.6, 1.1, 1.1, PAL.yyBand);
       px.set(h.x + 3.4, h.y + 3, PAL.gold[3]); px.set(h.x + 3.4, h.y + 4, PAL.gold[2]);
+      hFace(px, J, p, hex32('#c88a3a'), PAL.yySkin);
     },
     nearArm(px, J) { hArm(px, J.sN, J.eN, J.hN, PAL.yyTunic, PAL.yySkin, true, PAL.gold); },
     weaponN(px, J) {
@@ -245,17 +257,18 @@ const COSTUME = {
       px.poly(t1, PAL.sSkirt, { grad: [hp.x - 4, hp.y - 1, hp.x + 6, hp.y + 5] });
       for (let x = Math.ceil(hp.x - 6); x <= hp.x + 5.8; x++) px.set(x, hp.y + 3.2, x & 1 ? PAL.sCape[3] : PAL.sSkirt[3]);
       px.capsule(hp.x - 3.4, hp.y - 1.4, hp.x + 3.4, hp.y - 1.4, .9, .9, PAL.gold);
-      px.line(n.x - 2.4, n.y + .6, n.x + 2.2, n.y + .2, PAL.gold[2]);
+      furCollar(px, n, 5.2);
     },
     head(px, J, p) {
       const h = J.head, R = PAL.sHair;
       px.poly([[h.x + 4, h.y - 1], [h.x + 11.5, h.y - 6.5], [h.x + 5.2, h.y + 2]], PAL.sSkin, { grad: [h.x + 11, h.y - 6, h.x + 4, h.y + 2] });
-      hHead(px, J, PAL.sSkin); hFace(px, J, p, hex32('#3a6ad8'), PAL.sSkin);
+      hHead(px, J, PAL.sSkin);
       px.ellipse(h.x + 1.8, h.y - 3.6, 6.8, 4.2, R);
       px.ellipse(h.x + 3.6, h.y - 7.8, 3, 2.7, R);
       px.line(h.x + 1.8, h.y - 8.6, h.x + 5.6, h.y - 6.2, PAL.gold[2]);
       spikes(px, [[h.x - 5.2, h.y - 3.4, h.x - 7, h.y + 3, 1.6], [h.x - 3.4, h.y - 4.4, h.x - 5, h.y - .6, 1.5], [h.x - 1, h.y - 4.8, h.x - 3, h.y - 1, 1.5], [h.x + 1.5, h.y - 4.6, h.x - .2, h.y - 1.4, 1.3], [h.x + 5.8, h.y - 2.6, h.x + 7.4, h.y + 3.2, 1.6]], R);
       px.capsule(h.x - 6.4, h.y + .6, h.x - 6.6, h.y + 7, 1.2, .8, R);
+      hFace(px, J, p, hex32('#3a6ad8'), PAL.sSkin);
     },
     nearArm(px, J) {
       px.ellipse(J.sN.x + .2, J.sN.y + .2, 3.2, 2.6, PAL.steel);
