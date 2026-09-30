@@ -38,6 +38,8 @@ scene-wide coloured light, then lingering embers/leaves/dust.
 
 **Enemy death:** the sprite dissolves into rising pixels with a flash.
 
+Spell previews rendered with these rules: `docs/art/spells/` (generator: `tools/spellfx/`).
+
 ## 4. Our adaptation
 - Palette per world (see `CHARACTERS_AND_WORLDS.md`): Verdance is golden-hour greens and amber; Ashmarch terracotta, gold and lantern light; Hollowmere teal mist and silver.
 - Magic is the one thing drawn "above" the pixel style: rune circles and glows are sharper and brighter than the world, so the story's theme (magic is special and mysterious) shows in the art.
