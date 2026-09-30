@@ -85,6 +85,46 @@ Working title: *TBD*. Reference: Octopath Traveler (HD-2D look, Break/Boost comb
 ### 2.4 Test plan
 - Automation tests for: turn order with ties, shield decrement on weakness, break/recover timing, BP accrual and cap, damage multipliers, multi-hit.
 
+### 2.6 Active defense (dodge / block / parry / counter)
+Inspired by the active-defense trend in modern turn-based RPGs (e.g. Expedition 33): enemy turns are not passive. The player acts during the enemy's attack animation.
+
+**Core loop**
+- The enemy attack is **telegraphed** (readable wind-up, audio cue, and a short on-screen cue). Multi-hit attacks have several hits, each with its own timing window.
+- For each hit the player performs one defensive input in time:
+  | Input | Window | Result |
+  |---|---|---|
+  | **Dodge** | early, generous | Avoid the hit entirely. No reward. |
+  | **Block** | medium | Reduce damage (~50%) and avoid status effects. |
+  | **Parry** (perfect) | narrow, late | Take 0 damage, stagger the attacker, grant a reward (below). |
+  | **None / miss** | - | Full damage. |
+- Dodge vs. block vs. parry depends on the attack type (e.g. physical attacks can be parried, area spells must be dodged, unblockable attacks have a distinct cue). This makes enemies readable and varied.
+
+**Rewards and counters**
+- A **perfect parry** grants +1 BP to the defending character and chips 1 shield point on the attacker (or fully counters on some abilities). A **counter-attack** follows automatically on a full parry chain of an enemy's multi-hit attack.
+- Hooks into Break: chaining parries on the same enemy's multi-hit can break it without using a weakness. This links defense to offense.
+
+**Per-character flavour**
+- **Aruna (Mage):** ward timing. Dodge-focused; a perfect dodge fills spell energy.
+- **Ayo (Duelist):** rhythm dodge/evade, with combos extended by evasions.
+- **Serafina (Warden):** block/parry specialist; can **guard** allies by taking hits (shield/cape) on their behalf.
+- **Kael (Substitute):** parries heal him slightly (heals by hitting).
+
+**Design rules**
+- Which character is targeted decides who defends. Area attacks can be defended by everyone in turn.
+- **Timing input is per-character**, but difficulty is tunable: Easy (wide windows, slowed time), Normal, Hard. Options for assist: auto-block, hold-to-dodge, visual-only cues, and audio-only cues for accessibility.
+- Enemy telegraphs and windows are **data**: `FDefenseWindow { HitTime, DodgeStart/End, BlockStart/End, ParryStart/End, AttackType }` stored in the enemy ability asset.
+- Keep fights short enough so active defense does not become tiring. Trash mobs can use simple single-hit attacks.
+
+**Architecture impact**
+- The resolver takes a **`FDefenseResult` per hit** (Miss / Block / Dodge / Parry) as input. In real play it comes from the input/timing layer; in tests and auto-battle it is supplied directly, which keeps combat logic deterministic and unit-testable.
+- Timing is evaluated on the game thread from animation notifies (enemy attack notify = hit time), against the window data, with a small input-buffer and latency calibration setting.
+- Add tests: each result (miss/block/dodge/parry) changes damage/BP/shield as specified; multi-hit chains; unblockable attacks.
+
+**Risks**
+- Animation/telegraph authoring cost for every enemy attack. Mitigate with a small set of reusable attack archetypes and shared windows.
+- Frame timing and input latency; needs playtesting and a calibration option.
+- Balance: active defense makes fights easier for skilled players; scale enemy damage or add Hard mode rather than making windows unfair.
+
 ## 3. HD-2D Look (Milestone 2)
 - **Sprites**: paper-flipbook or Niagara-free `UPaperFlipbookComponent`, or a custom unlit/lit billboard material on quads (recommended: material with normal-map support so sprites are lit by dynamic lights). Point sampling, no mip blur.
 - **Camera**: fixed-pitch (~30–45°) perspective camera, low FOV, spring-arm rig; billboard sprites face camera (yaw-only facing to avoid tilt artifacts).
