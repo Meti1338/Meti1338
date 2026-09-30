@@ -25,7 +25,6 @@ Working title: *TBD*. Reference: Octopath Traveler (HD-2D look, Break/Boost comb
     2. **World 2: the healer/tank's story.** The support/defensive companion (exact archetype, healer or tank, is TBD) joins.
     3. **World 3: the warrior/rogue's story.** The physical damage companion (warrior or rogue, TBD) joins.
   - The 4th world is where the truth plays out: the Core, the revelation, and the ending. It is only reachable after the 3 main worlds.
-  - The 3 main worlds can be played in a loose order, like Octopath chapters.
 
 **Arc**
 1. *Spark*: an anomaly in the Mage's home world shows that magic is weakening or behaving oddly; the local explanation doesn't hold up.
