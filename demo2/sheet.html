@@ -6,6 +6,6 @@
 const c=document.getElementById('c'),g=c.getContext('2d'); const S=5; const COLS=["idle","windup","strike","hurt","dodge","victory"];
 c.width=96*S*6; c.height=80*S*3+128*S; g.imageSmoothingEnabled=false;
 const names=['Aruna','Ayo','Serafina']; const poses=['idle','windup','strike','hurt','dodge','victory'];
-names.forEach((n,r)=>{ const a=new Actor(n,false); poses.forEach((ps,i)=>{ a.pose=Object.assign({},a.poses[ps]||a.poses.idle); a.idleMode=false; const cv=a.render({rim:[255,210,140],rimA:.35}); g.drawImage(cv,i*96*S,r*80*S,96*S,80*S); g.fillStyle='#fff';g.font='20px sans-serif';g.fillText(n+' '+ps,i*96*S+8,r*80*S+22);});});
+names.forEach((n,r)=>{ const a=new Actor(n,false); a.phase=600; poses.forEach((ps,i)=>{ a.pose=Object.assign({},a.poses[ps]||a.poses.idle); a.idleMode=false; const cv=a.render({rim:[255,210,140],rimA:.35}); g.drawImage(cv,i*96*S,r*80*S,96*S,80*S); g.fillStyle='#fff';g.font='20px sans-serif';g.fillText(n+' '+ps,i*96*S+8,r*80*S+22);});});
 let x=0; for (const [k,ps] of [['Thornwolf','idle'],['Thornwolf','bite'],['Golem','idle'],['Golem','windup'],['Moth','idle']]){ const a=new Actor(k,true); a.pose=Object.assign({},a.poses[ps]); const cv=a.render({rim:[255,210,140],rimA:.3}); const s=k==='Thornwolf'?4:3; g.drawImage(cv,x,80*S*3,cv.width*s,cv.height*s); x+=cv.width*s; }
 </script>
