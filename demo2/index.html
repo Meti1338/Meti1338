@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Thornwood Clearing</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Spectral:wght@400;500;600&display=swap">
+<style>
+/* Layout: a 16:9 HD-2D battle stage with the command window and party status floating over its lower right,
+   like a console RPG. Below 760px the panels drop under the stage. Single committed night-navy/gold look. */
+:root {
+  --bg: #0b0a14;
+  --ink: #f3ead6;
+  --dim: #b8ae98;
+  --gold: #e6c478;
+  --gold-2: #a8843e;
+  --panel: rgba(14, 18, 44, .9);
+  --panel-2: rgba(8, 10, 28, .94);
+  --hp: #7fd67a;
+  --sp: #7ab4ff;
+  --font-title: "Cinzel", "Times New Roman", serif;
+  --font-body: "Spectral", Georgia, serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { background: var(--bg); }
+body { margin: 0; color: var(--ink); font-family: var(--font-body); font-size: 16px; padding-inline: 16px; padding-block: 14px 28px; }
+.shell { max-width: 1240px; margin-inline: auto; display: grid; gap: 10px; }
+.top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; }
+h1 { margin: 0; font: 700 1.35rem var(--font-title); letter-spacing: .08em; color: var(--gold); text-wrap: balance; }
+.sub { color: var(--dim); font-size: .95rem; }
+.stage { position: relative; container-type: inline-size; border: 1px solid #2a2438; background: #000; }
+canvas { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; touch-action: manipulation; cursor: pointer; }
+.mute { position: absolute; top: 8px; right: 8px; font: 600 12px var(--font-title); letter-spacing: .06em; color: var(--ink); background: rgba(8,10,28,.7); border: 1px solid var(--gold-2); padding: 5px 9px; cursor: pointer; }
+.mute:focus-visible, button:focus-visible { outline: 2px solid #fff3c0; outline-offset: 2px; }
+.log { margin: 0; min-height: 1.4em; color: var(--dim); font-style: italic; }
+
+/* panels in the console-RPG style: navy glass, double gold hairline */
+.panel { background: linear-gradient(180deg, var(--panel), var(--panel-2)); border: 1px solid var(--gold); box-shadow: inset 0 0 0 1px rgba(0,0,0,.7), inset 0 0 0 3px rgba(230,196,120,.22), 0 6px 18px rgba(0,0,0,.5); }
+.hud { display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); align-items: end; }
+.cmd { padding: 8px 10px 10px; display: grid; gap: 6px; min-width: 0; }
+.cw-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; border-bottom: 1px solid rgba(230,196,120,.35); padding-bottom: 5px; }
+.who { font: 700 1rem var(--font-title); letter-spacing: .05em; color: var(--c, var(--gold)); }
+.boost { display: flex; align-items: center; gap: 6px; }
+.blv { font: 700 .72rem var(--font-title); letter-spacing: .1em; color: #ffd98a; min-width: 5.2em; text-align: center; }
+.bb { width: 26px; height: 26px; padding: 0; font: 700 1rem var(--font-title); color: var(--ink); background: rgba(40,34,70,.9); border: 1px solid var(--gold-2); cursor: pointer; }
+.bb:disabled { opacity: .35; cursor: default; }
+.cw-list { display: grid; gap: 2px; }
+.cmdb { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 34px; padding: 4px 8px; font: 500 1rem var(--font-body); color: var(--ink); background: transparent; border: 1px solid transparent; text-align: left; cursor: pointer; }
+.cmdb span { flex: 1; }
+.cmdb em { font-style: normal; font-size: .85rem; color: var(--sp); font-variant-numeric: tabular-nums; }
+.cmdb:hover:not(:disabled), .cmdb:focus-visible, .cmdb.sel { background: linear-gradient(90deg, rgba(230,196,120,.28), rgba(230,196,120,0)); border-color: rgba(230,196,120,.5); outline: none; }
+.cmdb:disabled { opacity: .4; cursor: default; }
+.cmdb.back { color: var(--dim); }
+.ti { display: inline-grid; place-items: center; width: 22px; height: 22px; font: 700 10px var(--font-title); font-style: normal; color: #10101c; background: var(--c); border: 1px solid rgba(255,255,255,.35); }
+.cw-desc { margin: 0; font-size: .85rem; color: var(--dim); min-height: 2.4em; }
+.defend { width: 100%; min-height: 54px; font: 800 1.1rem var(--font-title); letter-spacing: .14em; color: #1a1206; background: linear-gradient(180deg, #ffe39a, #d8a848); border: 1px solid #fff0c0; cursor: pointer; }
+.status { padding: 6px 10px; display: grid; gap: 2px; min-width: 0; grid-column: 2; }
+.srow { display: grid; grid-template-columns: 5.6em minmax(0, 1fr) minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 3px 6px; border: 1px solid transparent; }
+.srow.on { background: linear-gradient(90deg, rgba(230,196,120,.25), rgba(230,196,120,0)); border-color: rgba(230,196,120,.45); }
+.srow.ko { opacity: .45; }
+.nm { font: 700 .95rem var(--font-title); color: var(--c); letter-spacing: .03em; }
+.val { font-size: .85rem; font-variant-numeric: tabular-nums; display: grid; gap: 2px; }
+.val b { font: 700 .66rem var(--font-title); color: var(--dim); letter-spacing: .08em; margin-right: 4px; }
+.bar { display: block; height: 4px; background: rgba(0,0,0,.6); }
+.bar i { display: block; height: 100%; }
+.bar .hp { background: linear-gradient(90deg, #4aa84a, var(--hp)); }
+.bar .sp { background: linear-gradient(90deg, #3a70d0, var(--sp)); }
+.orbs { display: flex; gap: 3px; }
+.orb { width: 11px; height: 11px; border-radius: 50%; border: 1px solid #c09848; background: rgba(0,0,0,.5); }
+.orb.full { background: radial-gradient(circle at 35% 35%, #fff6c8, #ffb838 55%, #b86a10); box-shadow: 0 0 6px rgba(255,190,80,.8); }
+.orb.spend { background: radial-gradient(circle at 35% 35%, #ffffff, #ff9ad8 55%, #c03a8a); box-shadow: 0 0 8px rgba(255,120,200,.9); }
+
+/* on wide stages the panels float over the lower right of the scene */
+@container (min-width: 760px) {
+  .hud { position: absolute; right: 1.2cqw; bottom: 1.6cqw; width: 64cqw; grid-template-columns: 22cqw minmax(0, 1fr); pointer-events: none; }
+  .hud > * { pointer-events: auto; }
+  .status { font-size: 1.45cqw; }
+  .cmd { font-size: 1.45cqw; }
+}
+@container (min-width: 1100px) { .hud { width: 58cqw; grid-template-columns: 20cqw minmax(0, 1fr); } }
+@media (max-width: 560px) {
+  .hud { grid-template-columns: minmax(0, 1fr); }
+  .status { grid-column: auto; }
+  .srow { grid-template-columns: 5em minmax(0, 1fr) minmax(0, 1fr); }
+  .orbs { grid-column: 1 / -1; }
+}
+.overlay { position: absolute; inset: 0; display: grid; place-items: center; padding: 16px; background: radial-gradient(ellipse at center, rgba(8,8,24,.45), rgba(8,8,24,.85)); }
+.card { max-width: 560px; padding: 18px 22px; display: grid; gap: 10px; }
+.card h2 { margin: 0; font: 800 clamp(1.3rem, 3.4cqw, 2rem) var(--font-title); letter-spacing: .1em; color: var(--gold); text-align: center; }
+.card p { margin: 0; color: var(--dim); }
+.card ul { margin: 0; padding-left: 1.1em; display: grid; gap: 4px; font-size: .95rem; }
+.card b { color: #ffe0a0; font-weight: 600; }
+.go { justify-self: center; min-width: 12em; min-height: 44px; font: 700 1rem var(--font-title); letter-spacing: .12em; color: #1a1206; background: linear-gradient(180deg, #ffe39a, #d8a848); border: 1px solid #fff0c0; cursor: pointer; }
+kbd { font: 600 .8em var(--font-title); padding: 0 5px; border: 1px solid var(--gold-2); background: rgba(40,34,70,.9); }
+.foot { color: var(--dim); font-size: .85rem; margin: 0; }
+@container (max-width: 520px) { .card ul { display: none; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<main class="shell">
+  <div class="top">
+    <h1>Thornwood Clearing</h1>
+    <span class="sub">Verdance &middot; HD-2D battle prototype</span>
+  </div>
+  <div class="stage" id="stage">
+    <canvas id="view" width="960" height="540" aria-label="Battle scene"></canvas>
+    <button class="mute" id="mute" aria-pressed="false">Sound on</button>
+    <section class="hud" aria-label="Battle controls">
+      <div class="cmd panel" id="cmd" hidden></div>
+      <div class="status panel" id="status" aria-label="Party status"></div>
+    </section>
+    <div class="overlay" id="intro">
+      <div class="card panel">
+        <h2>Thornwood Clearing</h2>
+        <p>Aruna, Ayo and Serafina are ambushed by the forest's awakened guardians.</p>
+        <ul>
+          <li><b>Break:</b> hit weaknesses to strip shields. At zero the enemy is stunned and takes +50% damage.</li>
+          <li><b>Boost:</b> earn 1 BP per round. Press <kbd>E</kbd>/<kbd>Q</kbd> or +/&minus; to spend up to 3 for more hits and bigger spells.</li>
+          <li><b>Defend:</b> on enemy turns press <kbd>Space</kbd> or tap as the rings meet. Gold rings: parry. Blue rings: dodge.</li>
+        </ul>
+        <button class="go" id="begin">Begin battle</button>
+      </div>
+    </div>
+    <div class="overlay" id="outro" hidden>
+      <div class="card panel">
+        <h2 id="outTitle">Victory</h2>
+        <p id="outBody"></p>
+        <button class="go" id="again">Fight again</button>
+      </div>
+    </div>
+  </div>
+  <p class="log" id="log" aria-live="polite">&nbsp;</p>
+  <p class="foot">Original art and effects generated in code, in the HD-2D style studied in <code>docs/ART_STYLE.md</code>. Sound is synthesised.</p>
+</main>
+<script src="js/core.js"></script>
+<script src="js/actors.js"></script>
+<script src="js/scene.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/battle.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
