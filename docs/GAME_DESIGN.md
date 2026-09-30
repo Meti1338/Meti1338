@@ -26,6 +26,10 @@ Working title: *TBD*. Reference: Octopath Traveler (HD-2D look, Break/Boost comb
     3. **World 3: the warrior/rogue's story.** The physical damage companion's backstory is told here (warrior or rogue, TBD).
   - **Companions join early (decided):** both companions join during World 1's opening, which doubles as the tutorial where the player learns movement, Break/Boost, and party roles. The full party of 3 is available almost from the start, so there is no solo-Mage problem and no guest NPC is needed.
   - A companion's world is where their backstory and motivations are revealed. They are already travelling with the Mage, so the player gets to know them first and learns why they act as they do later. Their personal quest also gives a fragment of truth.
+  - **Story-driven substitute (decided): the healer/tank is captured during their main quest in World 2.** An important character from her story (the **Substitute**, name TBD) joins the party in her place, keeping the party at exactly 3.
+    - Gameplay: a **bruiser/healer** with abilities similar in spirit to the captured companion's (sustain plus frontline damage) but with a different flavour, so the swap feels fresh. The player has to adapt Break/Boost play for a few chapters.
+    - Story: the Substitute has a personal stake in rescuing the companion, so the quest to free her is driven by both of them. Their own relationship and motives are explored along the way.
+    - Requires the party system to support scripted roster changes (a captured/unavailable member replaced by a story NPC), not just fixed slots. See 2.5.
   - The 4th world is where the truth plays out: the Core, the revelation, and the ending. It is only reachable after the 3 main worlds.
 
 **Arc**
@@ -36,7 +40,7 @@ Working title: *TBD*. Reference: Octopath Traveler (HD-2D look, Break/Boost comb
 
 **Themes**: curiosity vs. consequence, knowledge as a responsibility, magic as something shared rather than owned.
 
-**Open story questions**: What is the Core (a being, a place, a process)? Who are the two companions? Is there an antagonist, or is the tension the discovery itself? Which archetype is each companion (healer or tank, warrior or rogue, or a hybrid)? Why do they join the Mage early, before their own stories unfold (a shared goal, a debt, hidden reasons)?
+**Open story questions**: What is the Core (a being, a place, a process)? Who are the two companions? Is there an antagonist, or is the tension the discovery itself? Which archetype is each companion (healer or tank, warrior or rogue, or a hybrid)? Why do they join the Mage early, before their own stories unfold (a shared goal, a debt, hidden reasons)? Who is the Substitute, and do they leave when the companion is rescued (temporary guest), or stay and take the companion's slot or another (permanent change)? If the party is fixed at 3, does the rescued companion return to her slot?
 
 ## 2. Combat Core (Milestone 1)
 
@@ -56,6 +60,7 @@ Working title: *TBD*. Reference: Octopath Traveler (HD-2D look, Break/Boost comb
 - **3 playable characters, all active, no reserve bench and no swapping mid-battle.** Octopath's 8-character roster with 4 active slots is deliberately not used.
 - Why: fewer, deeper characters; less art and balancing cost; simpler UI and turn-order bar; each character's skills matter every fight.
 - Design consequences: each character needs a clear role and weapon/element coverage so the 3 together can hit most enemy weaknesses; BP is tracked per character; enemy encounters are tuned around 3 actors (typically 2-5 enemies).
+- **Scripted roster changes:** the party is always 3, but story events can swap a member (e.g. the healer/tank is captured and a story NPC takes her slot). The roster is data-driven: a party slot holds a character reference, and story flags decide who fills it. The Substitute's level and gear should be set so they are usable immediately on joining.
 - `PartySize` is a single constant/data setting, so changing it later (e.g. to 2 or 4) needs no architecture changes.
 
 ### 2.2 Data model (data-driven; Data Assets / Data Tables)
