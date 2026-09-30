@@ -22,8 +22,10 @@ Working title: *TBD*. Reference: Octopath Traveler (HD-2D look, Break/Boost comb
   - The 3 main worlds are where the player learns about the characters. Each world centers on one party member's background and arc, and also gives a fragment of truth about magic.
   - **Fixed order (decided)**, like a linear chapter structure:
     1. **World 1: the Mage's story.** Introduces the protagonist, the mystery of magic, and the core gameplay.
-    2. **World 2: the healer/tank's story.** The support/defensive companion (exact archetype, healer or tank, is TBD) joins.
-    3. **World 3: the warrior/rogue's story.** The physical damage companion (warrior or rogue, TBD) joins.
+    2. **World 2: the healer/tank's story.** The support/defensive companion's backstory is told here (exact archetype, healer or tank, is TBD).
+    3. **World 3: the warrior/rogue's story.** The physical damage companion's backstory is told here (warrior or rogue, TBD).
+  - **Companions join early (decided):** both companions join during World 1's opening, which doubles as the tutorial where the player learns movement, Break/Boost, and party roles. The full party of 3 is available almost from the start, so there is no solo-Mage problem and no guest NPC is needed.
+  - A companion's world is where their backstory and motivations are revealed. They are already travelling with the Mage, so the player gets to know them first and learns why they act as they do later. Their personal quest also gives a fragment of truth.
   - The 4th world is where the truth plays out: the Core, the revelation, and the ending. It is only reachable after the 3 main worlds.
 
 **Arc**
@@ -34,7 +36,7 @@ Working title: *TBD*. Reference: Octopath Traveler (HD-2D look, Break/Boost comb
 
 **Themes**: curiosity vs. consequence, knowledge as a responsibility, magic as something shared rather than owned.
 
-**Open story questions**: What is the Core (a being, a place, a process)? Who are the two companions? Is there an antagonist, or is the tension the discovery itself? How many worlds (suggest 4 + final, to fit the 3-character scope)?
+**Open story questions**: What is the Core (a being, a place, a process)? Who are the two companions? Is there an antagonist, or is the tension the discovery itself? Which archetype is each companion (healer or tank, warrior or rogue, or a hybrid)? Why do they join the Mage early, before their own stories unfold (a shared goal, a debt, hidden reasons)?
 
 ## 2. Combat Core (Milestone 1)
 
