@@ -1,0 +1,87 @@
+# HD-2D Turn-Based RPG — Design & Technical Plan (Unreal Engine 5)
+
+Working title: *TBD*. Reference: Octopath Traveler (HD-2D look, Break/Boost combat, per-character paths).
+
+## 1. Pillars
+
+1. **HD-2D look**: pixel-art sprites living in a 3D diorama, with cinematic lighting and shallow depth of field.
+2. **Tactical turn-based combat**: exploit weaknesses, break shields, spend boost points for big turns.
+3. **Characters with distinct field abilities and stories** (later milestones).
+
+## 2. Combat Core (Milestone 1)
+
+### 2.1 Rules
+- **Turn order**: all combatants sorted by Speed each round; a preview bar shows the next N turns. Recomputed at start of each round, and when Break/stun changes who acts.
+- **Shield Points (SP)**: each enemy has N shields (e.g. 2–6) and a list of **weaknesses** (weapon types and elements).
+- **Break**: hitting a weakness removes 1 shield (multi-hit skills remove 1 per hit). At 0 shields the enemy is **Broken**: loses its next turn, takes bonus damage (x1.5), and its shields restore when it recovers.
+- **Boost Points (BP)**: each party member gains +1 BP at the start of each round (max 5). On their turn a character may spend up to 3 BP to:
+  - Basic attack: hit count +1 per BP spent.
+  - Skill: power multiplier scales per BP (skill defines its own scaling).
+- **Skills** cost MP; basic attacks are free.
+- **Damage formula (initial, tunable)**:
+  `damage = (Attack * Power * BoostMult * WeaknessMult * BreakMult) - Defense*k`, with small random variance (±5%). Multipliers live in a data table.
+- **Win/lose**: party wiped → defeat; all enemies dead → victory (XP, gold, drops).
+
+### 2.2 Data model (data-driven; Data Assets / Data Tables)
+| Type | Fields |
+|---|---|
+| `FCombatantStats` | MaxHP, MaxMP, Attack, Defense, Speed, MagAtk, MagDef |
+| `UAbilityData` | Name, MPCost, TargetMode (Single/All/Self/Ally), DamageType, Element/WeaponType, Power, HitCount, BoostScaling, Effects[] |
+| `UEnemyData` | Stats, ShieldCount, Weaknesses[], AbilityList, AI profile, drops |
+| `UCharacterData` | Stats, equippable weapon types, abilities, growth curve |
+
+### 2.3 Runtime architecture (C++ core, Blueprint/UMG on top)
+- `UBattleManager` (Game Instance Subsystem or actor): state machine.
+  `Start → RoundStart → NextTurn → AwaitAction → ResolveAction → CheckEnd → (NextTurn | RoundEnd) → End`
+- `UCombatantComponent`: HP/MP/SP/BP, status (Broken), weaknesses revealed. Broadcasts delegates (`OnDamaged`, `OnBroken`, `OnDied`, `OnBPChanged`).
+- `FBattleAction`: Actor, Ability, Targets[], BoostSpent. Resolved by pure functions (easy to unit test with Automation Tests, no world needed).
+- `UTurnOrderQueue`: pure logic class for sorting/preview.
+- `IBattleAI`: enemy decides an action from state (start with weighted random + "target weakness" heuristic).
+- UI (UMG): turn-order bar, command menu, boost pips, shield icons with revealed weaknesses, damage numbers.
+- Keep **logic and presentation separate**: resolver emits events, animation/VFX layer plays them. This allows headless tests.
+
+### 2.4 Test plan
+- Automation tests for: turn order with ties, shield decrement on weakness, break/recover timing, BP accrual and cap, damage multipliers, multi-hit.
+
+## 3. HD-2D Look (Milestone 2)
+- **Sprites**: paper-flipbook or Niagara-free `UPaperFlipbookComponent`, or a custom unlit/lit billboard material on quads (recommended: material with normal-map support so sprites are lit by dynamic lights). Point sampling, no mip blur.
+- **Camera**: fixed-pitch (~30–45°) perspective camera, low FOV, spring-arm rig; billboard sprites face camera (yaw-only facing to avoid tilt artifacts).
+- **Post process**: tilt-shift-style Depth of Field (Cinematic DoF with focus on player), bloom, subtle vignette, color grade, light shafts. Consider Lumen on, tuned for stylised look.
+- **Environment**: modular low-poly/3D props textured with painterly pixel-like textures; water and foliage with simple shaders; day/night via directional light + sky.
+- **Battle scene**: same 3D map as backdrop; party on the right, enemies left, camera cuts/pushes on attacks (Level Sequencer or camera shake + spring-arm offset).
+
+## 4. Exploration (Milestone 3)
+- Grid-less free movement (8-direction), sprite direction by facing.
+- Random encounters or visible enemies; transitions to battle with a screen wipe.
+- Field abilities (talk, steal, inspect, etc.) via interface on NPC actors.
+- Town/dungeon streaming with World Partition or sublevels.
+
+## 5. Project Layout (proposed)
+```
+/Source/<Game>/Combat/      BattleManager, Combatant, Abilities, TurnOrder, AI
+/Source/<Game>/Characters/  Sprite actors, movement
+/Source/<Game>/UI/          UMG base classes
+/Content/Data/              DataAssets, DataTables
+/Content/HD2D/              Materials, post process, sprites
+/docs/                      Design docs
+```
+Use Git LFS for `.uasset`/`.umap` and textures. Add `.gitignore` for `Binaries/`, `Intermediate/`, `Saved/`, `DerivedDataCache/`.
+
+## 6. Roadmap
+1. **M1 Combat core** (logic + tests, then placeholder UI). ← first
+2. **M2 HD-2D presentation** (sprite material, camera, post process, battle scene).
+3. **M3 Exploration** (movement, encounters, NPCs, one town + one dungeon).
+4. **M4 Content & systems** (equipment, jobs/classes, shops, save/load, 4–8 characters).
+5. **M5 Polish** (audio, cutscenes, localisation, optimisation, packaging).
+
+## 7. Risks / Notes
+- Art is the main cost: decide early on pixel-art source (commission vs. assets) and base sprite resolution (e.g. 32×48 at 2–3x scale).
+- Sprite lighting with normal maps needs a custom material; prototype first.
+- Keep combat math in data tables so balancing needs no recompiles.
+- Octopath Traveler is Square Enix IP: replicate mechanics/style generally, but use original names, art, music and story.
+
+## 8. Open Questions
+- Party size (Octopath: 4 active of 8)? Number of playable characters?
+- Single-player only, or co-op/online?
+- Target platforms (PC first?) and min spec.
+- Art pipeline and source of pixel assets.
