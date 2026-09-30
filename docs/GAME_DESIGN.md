@@ -18,12 +18,15 @@ Working title: *TBD*. Reference: Octopath Traveler (HD-2D look, Break/Boost comb
 - Each **world** is a self-contained region with its own biome, culture, and a different *theory of magic* (e.g. magic as a living force, as a debt, as stored memory, as a machine, as a shared dream).
 - Each world yields a **fragment of truth** plus a new spell school or element for the Mage, which ties progression to the story and to combat weaknesses (section 2).
 - Travel between worlds uses a recurring device (a gate, a tome, a ley-line ship; TBD), which also serves as the hub.
-- Worlds can be played in a loose order, like Octopath chapters, then converge on the final world.
+- **World count (decided): 3 main worlds + 1 final world.**
+  - The 3 main worlds are where the player learns about the characters. Each world centers on one party member's background and arc (my proposal: one world per character, including the Mage), while also giving a fragment of truth about magic.
+  - The 4th world is where the truth plays out: the Core, the revelation, and the ending. It is only reachable after the 3 main worlds.
+  - The 3 main worlds can be played in a loose order, like Octopath chapters.
 
 **Arc**
 1. *Spark*: an anomaly in the Mage's home world shows that magic is weakening or behaving oddly; the local explanation doesn't hold up.
-2. *Journey*: in each world the Mage studies local magic, helps with a local crisis, and recovers a fragment. Companions join for their own reasons (e.g. one who distrusts magic, one who lives by it).
-3. *Revelation*: the fragments show that the worlds' magics are all linked to one **Core**.
+2. *Journey* (3 main worlds): in each world the Mage studies local magic, helps with a local crisis, and recovers a fragment. Companions join for their own reasons (e.g. one who distrusts magic, one who lives by it).
+3. *Revelation* (final world): the fragments show that the worlds' magics are all linked to one **Core**.
 4. *The Core*: the Mage reaches it and must decide what to do with the truth. Ending options are TBD (e.g. protect it, free it, merge with it).
 
 **Themes**: curiosity vs. consequence, knowledge as a responsibility, magic as something shared rather than owned.
