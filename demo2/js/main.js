@@ -58,7 +58,7 @@ function drawWorld() {
     u.sprLeft = u.x + u.ox - A.footX; u.sprTop = u.y + u.oy - u.fly - A.footY;
     u.top = u.y + u.oy - u.fly - u.hgt;
     lctx.globalAlpha = u.vis;
-    lctx.drawImage(spr, Math.round(u.sprLeft + off.x), Math.round(u.sprTop + off.y));
+    lctx.drawImage(spr, Math.round(u.sprLeft + off.x), Math.round(u.sprTop + off.y), spr.width / A.px.d, spr.height / A.px.d);
     lctx.globalAlpha = 1;
   }
   for (const e of FX.low) e.draw(lctx, (Clock.t - e.t0) / e.dur, off);
@@ -142,7 +142,7 @@ function portrait(u) {
   const J = A.J, s = u.side === 'p' ? 18 : u.actor.kind === 'Golem' ? 34 : 28;
   const hx = u.side === 'p' ? J.head.x : J.head.x, hy = u.side === 'p' ? J.head.y - 1 : J.head.y;
   const c = document.createElement('canvas'); c.width = s; c.height = s; const g = c.getContext('2d');
-  g.drawImage(A.px.cv, Math.round(hx - s / 2), Math.round(hy - s / 2), s, s, 0, 0, s, s);
+  const dd = A.px.d; g.drawImage(A.px.cv, Math.round(hx - s / 2) * dd, Math.round(hy - s / 2) * dd, s * dd, s * dd, 0, 0, s, s);
   u.portrait = c; return c;
 }
 function drawTurnOrder(c) {

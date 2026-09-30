@@ -87,31 +87,45 @@ function hLeg(px, L, pants, boots, feet) {
   px.capsule(L.kn.x, L.kn.y, L.ft.x, L.ft.y, 2.3, 2.1, boots);
   px.capsule(L.ft.x + 1, L.ft.y - .6, L.ft.x - 2.4, L.ft.y + .1, 2, 1.6, feet || boots);
 }
-function hFace(px, J, p, eyeCol, skin) {           // front 3/4 face: two large eyes with highlights
-  const h = J.head, ex = [h.x - .6, h.x - 3.8], ey = h.y + .8, iris = typeof eyeCol === 'number' ? eyeCol : eyeCol[2];
-  const dark = PAL.eye, hi = hex32('#ffffff');
-  for (let i = 0; i < 2; i++) {
-    const x = Math.round(ex[i]) - 1, y = Math.round(ey);
-    if (p.blink > .5) { px.set(x, y + 2, dark); px.set(x + 1, y + 2, dark); continue; }
-    px.set(x, y, dark); px.set(x + 1, y, dark);
-    px.set(x, y + 1, i ? iris : hi); px.set(x + 1, y + 1, iris);
-    px.set(x, y + 2, iris); px.set(x + 1, y + 2, dark);
+function hFace(px, J, p, eyeCol, skin) {           // front 3/4 face drawn in fine pixels
+  const h = J.head, q = 1 / px.d, dk = PAL.eye, wh = hex32('#ffffff');
+  const [r, g, bl] = unpack(eyeCol), irisD = u32(r * .5 | 0, g * .5 | 0, bl * .6 | 0), irisL = u32(Math.min(255, r * 1.25 + 40) | 0, Math.min(255, g * 1.25 + 40) | 0, Math.min(255, bl * 1.2 + 40) | 0);
+  const eyes = [[h.x - 1.9, 2.5], [h.x - 5.1, 1.5]], y0 = h.y + .3;
+  for (const [x0, wd] of eyes) {
+    const cols = Math.round(wd * px.d), rows = Math.round(3 * px.d);
+    if (p.blink > .5) { for (let i = -1; i <= cols; i++) px.dot(x0 + i * q, y0 + 2 * q * px.d / 2 + q, dk); continue; }
+    for (let i = -1; i <= cols; i++) px.dot(x0 + i * q, y0, dk);                                   // lash line
+    for (let j = 1; j < rows; j++) for (let i = 0; i < cols; i++) {
+      const u = j / rows; px.dot(x0 + i * q, y0 + j * q, u < .45 ? irisD : u > .8 ? irisL : eyeCol);
+    }
+    const pc = x0 + Math.floor(cols / 2) * q;
+    px.dot(pc, y0 + 2 * q, dk); px.dot(pc, y0 + 3 * q, dk);                                        // pupil
+    px.dot(x0, y0 + q, wh); if (cols > 3) px.dot(x0 + q, y0 + q, wh);                                 // highlight
+    px.dot(x0 + (cols - 1) * q, y0 + (rows - 2) * q, irisL);
+    px.dot(x0 + (cols - 1) * q, y0 + (rows - 1) * q, dk);
   }
-  px.set(h.x - 3, h.y + 4.6, skin[0]); px.set(h.x - 2.2, h.y + 4.6, skin[1]);   // mouth
-  px.set(h.x - 5.2, h.y + 3.2, skin[3]);                                          // cheek light
+  px.dot(h.x - 3.3, h.y + 3.2, skin[1]);                                                            // nose
+  px.dot(h.x - 3.6, h.y + 4.4, skin[0]); px.dot(h.x - 3.1, h.y + 4.5, skin[0]); px.dot(h.x - 2.6, h.y + 4.4, skin[1]);   // mouth
+  px.dot(h.x - .6, h.y + 3.3, u32(...unpack(skin[3]).slice(0, 3).map((v, i) => Math.min(255, v + [30, 0, 10][i]))));   // cheek glow
 }
 function furCollar(px, n, w) {                         // chunky fur collar with tufted lower edge
   w = w || 5.4;
   px.ellipse(n.x + .6, n.y + 1.4, w, 2.8, PAL.fur, { amb: .4 });
-  for (let x = Math.ceil(n.x - w + 1); x < n.x + w; x++) if ((x & 1) === 0) px.set(x, n.y + 4, PAL.fur[2]);
-  for (let x = Math.ceil(n.x - w + 1.5); x < n.x + w - .5; x += 3) px.set(x, n.y + .2, PAL.fur[4]);
+  const q = 1 / px.d;
+  for (let x = n.x - w + 1; x < n.x + w - .5; x += q) { const k = Math.round(x * px.d); px.dot(x, n.y + 3.6 + (k % 3) * q, k % 2 ? PAL.fur[1] : PAL.fur[2]); if (k % 3 === 0) px.dot(x, n.y + 4 + q, PAL.fur[0]); }
+  for (let x = n.x - w + 1.5; x < n.x + w - .5; x += 1.5) { px.dot(x, n.y + .4, PAL.fur[4]); px.dot(x + q, n.y + .9, PAL.fur[3]); px.dot(x - q, n.y + 1.6, PAL.fur[1]); }
+}
+function folds(px, list, rp) {                       // cloth folds: thin shadow line with a lit edge
+  const q = 1 / px.d;
+  for (const [x0, y0, x1, y1] of list) { px.hair(x0, y0, x1, y1, rp[0]); px.hair(x0 - q, y0, x1 - q, y1, rp[rp.length - 1]); }
 }
 function hHead(px, J, skin) { px.ellipse(J.head.x, J.head.y + .6, HD.hr, HD.hr - .4, skin, { amb: .5, dither: .15, bias: .08 }); }
 function spikes(px, list, rp) {                      // hair strands: [baseX, baseY, tipX, tipY, width]
   for (const [bx, by, tx, ty, w] of list) {
     const dx = tx - bx, dy = ty - by, l = Math.hypot(dx, dy) || 1, nx = -dy / l * w, ny = dx / l * w;
     px.poly([[bx + nx, by + ny], [tx, ty], [bx - nx, by - ny]], rp, { grad: [bx - 2, by - 2, tx + 1, ty + 2], hi: .98 });
-    px.line(bx + nx * .4, by + ny * .4, lerp(bx, tx, .55), lerp(by, ty, .55), rp[rp.length - 1]);
+    px.hair(bx + nx * .35, by + ny * .35, lerp(bx, tx, .6), lerp(by, ty, .6), rp[rp.length - 1]);
+    px.hair(bx - nx * .5, by - ny * .5, lerp(bx, tx, .85), lerp(by, ty, .85), rp[0]);
   }
 }
 function curvedBlade(px, h, ang, len, curve, r0, rp, edge) {
@@ -133,6 +147,7 @@ const COSTUME = {
       const h = J.head, n = J.neck, sw = Math.sin(t / 420) * .8 + p.cape * 3;
       px.poly([[h.x + .5, h.y - 6], [h.x + 7, h.y - 2], [n.x + 7.5 + sw, n.y + 10], [n.x + 2 + sw * .5, n.y + 11.5], [n.x + .2, n.y + 2]], PAL.aHair, { grad: [h.x, h.y - 4, n.x + 4, n.y + 11] });
       px.poly([[n.x - 2.5, n.y + 1], [n.x + 4, n.y + .5], [n.x + 8.5 + sw * 1.6, HD.ground - 3 - sw], [n.x + 4 + sw, HD.ground - .5], [n.x - 1, HD.ground - 1.5]], PAL.aCloak, { grad: [n.x - 2, n.y, n.x + 8, HD.ground] });
+      folds(px, [[n.x + 3, n.y + 3, n.x + 6.5 + sw * 1.4, HD.ground - 3], [n.x + 1, n.y + 4, n.x + 3 + sw, HD.ground - 1.5]], PAL.aCloak);
     },
     farArm(px, J) { hArm(px, J.sF, J.eF, J.hF, far('aRobe'), far('aSkin'), false, far('gold')); },
     legs(px, J) { hLeg(px, J.legs.F, far('aRobe'), far('aBoot')); hLeg(px, J.legs.N, PAL.aRobe, PAL.aBoot); },
@@ -141,6 +156,7 @@ const COSTUME = {
       px.capsule(hp.x, hp.y, n.x, n.y + 1, 3.8, 4.2, PAL.aRobe);
       const hemY = HD.ground - 1.5, hl = Math.min(fN.x, fF.x) - 3.4, hr = Math.max(fN.x, fF.x) + 3.2;
       px.poly([[hp.x - 3.5, hp.y - 1.5], [hp.x + 3.3, hp.y - 1.5], [hr, hemY], [hl, hemY]], PAL.aRobe, { grad: [hp.x - 3, hp.y, hr, hemY + 2] });
+      folds(px, [[hp.x - 1.2, hp.y + 1.5, hl + 2.2, hemY - 1], [hp.x + 1.4, hp.y + 1.5, hr - 2.4, hemY - 1], [hp.x + .2, hp.y + 3, (hl + hr) / 2 + .6, hemY - 1]], PAL.aRobe);
       for (let x = Math.ceil(hl); x <= hr; x++) px.set(x, hemY - .5, PAL.gold[x % 3 ? 2 : 1]);
       px.line(hp.x - 1.5, hp.y + 1, (hl + hr) / 2 - 1.5, hemY - 1, PAL.gold[1]);
       px.poly([[n.x - 2.8, n.y + .8], [n.x + 2.8, n.y + .2], [hp.x + 3.6, hp.y - 1], [hp.x + .6, hp.y + .2]], PAL.aShawl, { grad: [n.x - 3, n.y, hp.x + 4, hp.y] });
@@ -189,6 +205,7 @@ const COSTUME = {
       px.capsule(hp.x, hp.y, n.x, n.y + 1, 3.6, 4.2, PAL.yyTunic);
       const L0 = [n.x - 4.6, n.y + 1.2], R0 = [n.x + 4.9, n.y + .8], R1 = [hp.x + 5.9, hp.y + 1.6], L1 = [hp.x - 5.6, hp.y + 1.6];
       px.poly([L0, R0, R1, L1], PAL.yyTunic, { grad: [L0[0], L0[1], R1[0], R1[1]] });
+      folds(px, [[n.x - 1.5, n.y + 5.5, hp.x - 3, hp.y - 1], [n.x + 2, n.y + 5.5, hp.x + 3, hp.y - 1]], PAL.yyTunic);
       const pat = [hex32('#c8a050'), hex32('#9a3a30'), hex32('#1a1014'), hex32('#9a3a30'), hex32('#c8a050'), hex32('#d8ccb0')];
       const rows = [Math.round(n.y + 4.5), Math.round(hp.y - .6)];
       rows.forEach((y, ri) => {
@@ -230,6 +247,7 @@ const COSTUME = {
       const n = J.neck, h = J.head, fl = p.cape + Math.sin(t / 520) * .15, sw = Math.sin(t / 340) * .8;
       const A = [n.x - 1, n.y + 1], B = [n.x + 3.6, n.y + .4], C = [n.x + 7.5 + fl * 7 + sw, HD.ground - 5 - fl * 6], Dp = [n.x + 4.5 + fl * 3, HD.ground - 1 - fl * 2], E = [n.x + .5, HD.ground - 3];
       px.poly([A, B, C, Dp, E], PAL.sCape, { grad: [A[0], A[1], C[0], C[1] + 6] });
+      folds(px, [[n.x + 2.4, n.y + 3, C[0] - 2, C[1] + 2], [n.x + 1.2, n.y + 4, Dp[0] - 1, Dp[1] - 1.5]], PAL.sCape);
       px.line(B[0], B[1], C[0], C[1], PAL.gold[1]);
       px.line(C[0], C[1], Dp[0], Dp[1], PAL.gold[2]);
       const b0 = { x: h.x + 4, y: h.y - 7 }, b1 = { x: h.x + 7.4 + sw * .4, y: h.y + 1.5 }, b2 = { x: h.x + 8.4 + fl * 2 + sw, y: h.y + 9 };
@@ -254,6 +272,7 @@ const COSTUME = {
       const t2 = [[hp.x - 5.2, hp.y + 2.4], [hp.x + 5.2, hp.y + 2.4], [hp.x + 7.4, hp.y + 6.4], [hp.x - 7.6, hp.y + 6.4]];
       px.poly(t2, PAL.sSkirt, { grad: [hp.x - 5, hp.y + 3, hp.x + 7, hp.y + 9] });
       for (let x = Math.ceil(hp.x - 7.4); x <= hp.x + 7.2; x++) px.set(x, hp.y + 6, x & 1 ? PAL.sSkirt[3] : PAL.gold[2]);
+      folds(px, [[hp.x - 3, hp.y + 3, hp.x - 4.6, hp.y + 6], [hp.x + 1, hp.y + 3, hp.x + 1.4, hp.y + 6], [hp.x + 4, hp.y + 3, hp.x + 5.6, hp.y + 6]], PAL.sSkirt);
       px.poly(t1, PAL.sSkirt, { grad: [hp.x - 4, hp.y - 1, hp.x + 6, hp.y + 5] });
       for (let x = Math.ceil(hp.x - 6); x <= hp.x + 5.8; x++) px.set(x, hp.y + 3.2, x & 1 ? PAL.sCape[3] : PAL.sSkirt[3]);
       px.capsule(hp.x - 3.4, hp.y - 1.4, hp.x + 3.4, hp.y - 1.4, .9, .9, PAL.gold);
@@ -487,8 +506,8 @@ const ENEMY_ART = {
 class Actor {
   constructor(kind, isEnemy) {
     this.kind = kind; this.isEnemy = isEnemy;
-    if (isEnemy) { const a = ENEMY_ART[kind]; this.art = a; this.px = new Pix(a.w, a.h); this.poses = EPOSES[kind]; this.footX = a.footX; this.footY = a.footY; }
-    else { this.px = new Pix(96, 80); this.poses = POSES[kind]; this.footX = HD.rootX; this.footY = HD.ground; }
+    if (isEnemy) { const a = ENEMY_ART[kind]; this.art = a; this.px = new Pix(a.w, a.h, DENS); this.poses = EPOSES[kind]; this.footX = a.footX; this.footY = a.footY; }
+    else { this.px = new Pix(96, 80, DENS); this.poses = POSES[kind]; this.footX = HD.rootX; this.footY = HD.ground; }
     this.pose = Object.assign({}, this.poses.idle);
     this.from = null; this.target = null; this.idleMode = true;
     this.flash = 0; this.tintA = 0; this.rimA = 0; this.rim = [255, 200, 120];

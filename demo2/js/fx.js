@@ -345,9 +345,9 @@ function fxDissolve(actor, left, top) {
   let n = 0;
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
     const c = out[y * w + x]; if (!(c >>> 24)) continue;
-    if (Math.random() > (REDUCED ? .15 : .55)) continue;
+    if (Math.random() > (REDUCED ? .15 : .55) / (px.d * px.d)) continue;
     const [r, g, b] = unpack(c);
-    part({ x: left + x, y: top + y, vx: gauss() * .25, vy: -rnd(.2, .9), ay: -.004, drag: .99, life: rnd(600, 1200), delay: y * 7 + rnd(0, 160), cols: ['rgb(' + r + ',' + g + ',' + b + ')', '#ffd0d0', '#ff7a7a', '#a02030'], add: false, fn: (p, f) => { p.vx += Math.sin(p.age / 90 + p.y) * .02 * f; } });
+    part({ x: left + x / px.d, y: top + y / px.d, vx: gauss() * .25, vy: -rnd(.2, .9), ay: -.004, drag: .99, life: rnd(600, 1200), delay: y / px.d * 7 + rnd(0, 160), cols: ['rgb(' + r + ',' + g + ',' + b + ')', '#ffd0d0', '#ff7a7a', '#a02030'], add: false, fn: (p, f) => { p.vx += Math.sin(p.age / 90 + p.y) * .02 * f; } });
     n++;
   }
   flash(.25, '255,230,230');
