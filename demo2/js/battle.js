@@ -11,19 +11,19 @@ function mkUnit(o) {
 function newBattle() {
   const A = n => new Actor(n, false), E = n => new Actor(n, true);
   B.party = [
-    mkUnit({ name: 'Aruna', role: 'Mage', actor: A('Aruna'), side: 'p', x: 344, y: 150, hgt: 40, maxHp: 132, maxMp: 44, atk: 27, def: 7, spd: 12,
+    mkUnit({ name: 'Aruna', role: 'Mage', actor: A('Aruna'), side: 'p', x: 344, y: 150, hgt: 33, maxHp: 132, maxMp: 44, atk: 27, def: 7, spd: 12,
       dodgeWin: 250, blockWin: 220, blockMul: .5, counter: .3, dodgeMp: 0, col: '#9aa8ff',
       abs: [
         { name: 'Attack', type: 'Staff', kind: 'melee', power: 1, hits: 1, mp: 0, tg: 'one', desc: 'Staff strike. Boost adds hits.' },
         { name: 'Flame', type: 'Fire', kind: 'flame', power: 1.9, hits: 1, mp: 8, tg: 'one', desc: 'Fireball that erupts into a flame pillar.' },
         { name: 'Gale', type: 'Wind', kind: 'gale', power: 1.05, hits: 1, mp: 14, tg: 'all', desc: 'Tornadoes strike every enemy.' }] }),
-    mkUnit({ name: 'Ayo', role: 'Duelist', actor: A('Ayo'), side: 'p', x: 372, y: 174, hgt: 38, maxHp: 158, maxMp: 28, atk: 25, def: 10, spd: 18,
+    mkUnit({ name: 'Ayo', role: 'Duelist', actor: A('Ayo'), side: 'p', x: 372, y: 174, hgt: 33, maxHp: 158, maxMp: 28, atk: 25, def: 10, spd: 18,
       dodgeWin: 230, blockWin: 220, blockMul: .5, counter: .3, dodgeMp: 4, col: '#5fd3c0',
       abs: [
         { name: 'Attack', type: 'Blade', kind: 'melee', power: 1, hits: 1, mp: 0, tg: 'one', desc: 'Sabre slash. Boost adds hits.' },
         { name: 'Flurry', type: 'Blade', kind: 'flurry', power: .62, hits: 3, mp: 8, tg: 'one', desc: 'Three slashes ending in a cross cut.' },
         { name: 'Rhythm Kick', type: 'Earth', kind: 'kick', power: 1.0, hits: 2, mp: 9, tg: 'one', desc: 'Two kicks; the second raises stone spikes.' }] }),
-    mkUnit({ name: 'Serafina', role: 'Warden', actor: A('Serafina'), side: 'p', x: 400, y: 198, hgt: 40, maxHp: 196, maxMp: 32, atk: 23, def: 15, spd: 9,
+    mkUnit({ name: 'Serafina', role: 'Warden', actor: A('Serafina'), side: 'p', x: 400, y: 198, hgt: 33, maxHp: 196, maxMp: 32, atk: 23, def: 15, spd: 9,
       dodgeWin: 200, blockWin: 300, blockMul: .35, counter: .45, dodgeMp: 0, col: '#ff8a7a',
       abs: [
         { name: 'Attack', type: 'Spear', kind: 'melee', power: 1, hits: 1, mp: 0, tg: 'one', desc: 'Lance thrust. Boost adds hits.' },
