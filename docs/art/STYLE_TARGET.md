@@ -35,6 +35,8 @@ backgrounds** for anything that moves, so it can be cut out cleanly.
 | Effects (optional) | 512×512 | Slash arc, fire burst, tornado, rock spikes, heal pillar, parry flash |
 
 ### Prompt template
+For PixelLab (pixel-art sprites), use the ready-made prompts in `PIXELLAB_PROMPTS.md` instead.
+
 > "{subject}, full body, {pose}, facing {left/right}, 2D HD pixel-art style game sprite, painterly
 > shading, bold dark outline, warm fantasy forest palette, ornate gold details, same style as
 > reference image, isolated on flat magenta background, no shadow, no text"
